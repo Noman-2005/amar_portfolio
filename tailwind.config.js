@@ -7,7 +7,13 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        slate: {
+          200: '#e2e8f0',
+        },
+      },
+    },
   },
   plugins: [],
 }
