@@ -3,11 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 
-/* ────────────────────────────────────────────────────────────────────
-   CONTENT
-   Edit the arrays below to update copy, projects, links, etc.
-   ──────────────────────────────────────────────────────────────────── */
-
 const NAV_LINKS = [
   { label: 'About', href: '#about' },
   { label: 'Skills', href: '#skills' },
@@ -19,12 +14,10 @@ const NAV_LINKS = [
 
 const SOCIALS = {
   github: 'https://github.com/Noman-2005',
-  linkedin: 'https://www.linkedin.com/in/shibli-noman-arnob-1247b4335',
+  linkedin: 'https://www.linkedin.com/in/shibli-noman-arnob-1247b4335?utm_source=share_via&utm_content=profile&utm_medium=member_android',
   email: 'sarnob2430277@bscse.uiu.ac.bd',
 }
 
-// Add as many images as you like — drop them in /public and list them here.
-// The frame will cycle through them automatically every 4 seconds.
 const PHOTOS = ['/arnob.jpg', '/arnob2.jpg', '/arnob3.jpg']
 
 const SKILLS = {
@@ -75,7 +68,7 @@ const PROJECTS = [
   },
   {
     title: 'Math Visualizer',
-    desc: 'An interactive tool to visualize vector fields, line integrals, and multivariable calculus concepts from coursework — the same idea behind this site\u2019s hero.',
+    desc: 'An interactive tool to visualize vector fields, line integrals, and multivariable calculus concepts from coursework — the same idea behind this site\'s hero.',
     tags: ['JavaScript', 'Canvas API', 'Math'],
     emoji: '📐',
     accent: 'var(--teal)',
@@ -85,12 +78,42 @@ const PROJECTS = [
 ]
 
 const TIMELINE = [
-  { year: '2023', title: 'Started Web Development', sub: 'Built first React projects and discovered a pull toward frontend engineering.' },
-  { year: '2023', title: 'Calculus, Linear Algebra & Vector Analysis', sub: 'Differentiation, integration, matrix operations, vector fields, line integrals, Green\u2019s and Divergence theorems.' },
-  { year: '2024', title: 'C, Java & Object-Oriented Programming', sub: 'Abstraction, polymorphism, interfaces, and exception handling, applied through design patterns.' },
-  { year: '2024', title: 'Data Structures & Algorithms', sub: 'Arrays, linked lists, trees, graphs, sorting and searching — and how to choose between them.' },
-  { year: '2024', title: 'Theory of Computation', sub: 'Automata, formal languages, Turing machines, and computational complexity.' },
-  { year: '2024', title: 'Digital Logic Design', sub: 'Logic gates, boolean algebra, combinational and sequential circuits.' },
+  {
+    title: 'Started Web Development',
+    sub: 'Built first React projects and discovered a pull toward frontend engineering.',
+  },
+  {
+    title: 'C, Java and Python',
+    sub: 'Core programming fundamentals, syntax, and problem solving across three languages.',
+  },
+  {
+    title: 'Calculus and Linear Algebra',
+    sub: 'Differentiation, integration, matrix operations, and their applications. GPA: 4.00 / 4.00',
+  },
+  {
+    title: 'Coordinate Geometry and Vector Analysis',
+    sub: 'Vector fields, line integrals, Green\'s and Divergence theorems. GPA: 4.00 / 4.00',
+  },
+  {
+    title: 'Discrete Mathematics',
+    sub: 'Logic, set theory, combinatorics, graph theory, and proof techniques. GPA: 3.67 / 4.00',
+  },
+  {
+    title: 'Object Oriented Programming',
+    sub: 'Abstraction, polymorphism, interfaces, and exception handling applied through design patterns. Ongoing',
+  },
+  {
+    title: 'Data Structures & Algorithms',
+    sub: 'Arrays, linked lists, trees, graphs, sorting and searching — and how to choose between them. GPA: 4.00 / 4.00',
+  },
+  {
+    title: 'Theory of Computation',
+    sub: 'Automata, formal languages, Turing machines, and computational complexity. Ongoing',
+  },
+  {
+    title: 'Digital Logic Design',
+    sub: 'Logic gates, boolean algebra, combinational and sequential circuits. GPA: 4.00 / 4.00',
+  },
 ]
 
 const RESOURCES = [
@@ -98,31 +121,24 @@ const RESOURCES = [
   { name: 'North South University', short: 'NSU', emoji: '🎓', desc: 'Leading private university in Bangladesh.', url: 'https://northsouth.edu', accent: 'var(--teal)' },
   { name: 'BRAC University', short: 'BRACU', emoji: '📚', desc: 'Top-ranked private university in Bangladesh.', url: 'https://bracu.ac.bd', accent: 'var(--amber)' },
   { name: 'Military Institute of Science and Technology', short: 'MIST', emoji: '⚙️', desc: 'Engineering and technology focused institution.', url: 'https://mist.ac.bd', accent: 'var(--violet)' },
-  { name: 'Bangladesh University of Engineering & Technology', short: 'BUET', emoji: '🔬', desc: 'Bangladesh\u2019s leading engineering university.', url: 'https://buet.ac.bd', accent: 'var(--teal)' },
+  { name: 'Bangladesh University of Engineering & Technology', short: 'BUET', emoji: '🔬', desc: 'Bangladesh\'s leading engineering university.', url: 'https://buet.ac.bd', accent: 'var(--teal)' },
   { name: 'Armed Forces Medical College', short: 'AFMC', emoji: '🏥', desc: 'Premier medical institution in Bangladesh.', url: 'https://afmc.edu.bd', accent: 'var(--amber)' },
   { name: 'Massachusetts Institute of Technology', short: 'MIT', emoji: '🌍', desc: 'Global reference point for engineering education.', url: 'https://mit.edu', accent: 'var(--violet)' },
-  { name: 'Dhaka University', short: 'DU', emoji: '🎓', desc: 'Bangladesh\u2019s oldest and most prestigious public university.', url: 'https://www.du.ac.bd', accent: 'var(--teal)' },
+  { name: 'Dhaka University', short: 'DU', emoji: '🎓', desc: 'Bangladesh\'s oldest and most prestigious public university.', url: 'https://www.du.ac.bd', accent: 'var(--teal)' },
   { name: 'Chittagong University of Engineering & Technology', short: 'CUET', emoji: '🏗️', desc: 'Leading public engineering university in Chattogram.', url: 'https://www.cuet.ac.bd', accent: 'var(--amber)' },
   { name: 'Khulna University of Engineering & Technology', short: 'KUET', emoji: '⚙️', desc: 'Public engineering university based in Khulna.', url: 'https://www.kuet.ac.bd', accent: 'var(--violet)' },
-  { name: 'Bangladesh Military Academy', short: 'BMA', emoji: '🪖', desc: 'Officer training academy of the Bangladesh Army.', url: 'https://www.bma.gov.bd', accent: 'var(--teal)' },
+  { name: 'Bangladesh Military Academy', short: 'BMA', emoji: '🪖', desc: 'Officer training academy of the Bangladesh Army.', url: 'https://bma.gov.bd', accent: 'var(--teal)' },
   { name: 'Islamic University of Madinah', short: 'IUM', emoji: '🕌', desc: 'Major Islamic university in Madinah, Saudi Arabia.', url: 'https://www.iu.edu.sa', accent: 'var(--amber)' },
   { name: 'Umm Al-Qura University', short: 'UQU', emoji: '🕋', desc: 'Public university based in Makkah, Saudi Arabia.', url: 'https://uqu.edu.sa', accent: 'var(--violet)' },
-  { name: 'Peking University', short: 'PKU', emoji: '🏯', desc: 'One of China\u2019s most prestigious research universities.', url: 'https://www.pku.edu.cn', accent: 'var(--teal)' },
+  { name: 'Peking University', short: 'PKU', emoji: '🏯', desc: 'One of China\'s most prestigious research universities.', url: 'https://www.pku.edu.cn', accent: 'var(--teal)' },
   { name: 'Tsinghua University', short: 'THU', emoji: '🎓', desc: 'Top-ranked Chinese university for engineering and tech.', url: 'https://www.tsinghua.edu.cn', accent: 'var(--amber)' },
-  { name: 'University of Oxford', short: 'OXFORD', emoji: '🏰', desc: 'World\u2019s oldest English-speaking university.', url: 'https://www.ox.ac.uk', accent: 'var(--violet)' },
+  { name: 'University of Oxford', short: 'OXFORD', emoji: '🏰', desc: 'World\'s oldest English-speaking university.', url: 'https://www.ox.ac.uk', accent: 'var(--violet)' },
   { name: 'University of Cambridge', short: 'CAMBRIDGE', emoji: '📖', desc: 'Historic UK university renowned for research.', url: 'https://www.cam.ac.uk', accent: 'var(--teal)' },
   { name: 'Durham University', short: 'DURHAM', emoji: '🏰', desc: 'Leading UK university known for its collegiate system.', url: 'https://www.durham.ac.uk', accent: 'var(--amber)' },
-  { name: 'University of Zurich', short: 'UZH', emoji: '🏔️', desc: 'Switzerland\u2019s largest university.', url: 'https://www.uzh.ch', accent: 'var(--violet)' },
+  { name: 'University of Zurich', short: 'UZH', emoji: '🏔️', desc: 'Switzerland\'s largest university.', url: 'https://www.uzh.ch', accent: 'var(--violet)' },
 ]
 
 const ROLES = ['Developer', 'Builder', 'Problem Solver', 'Hackathon Winner']
-
-/* ────────────────────────────────────────────────────────────────────
-   SIGNATURE: animated vector-field canvas
-   A live streamline field rendered behind the hero — a quiet nod to
-   Noman's vector calculus background, expressed as a running system
-   rather than a static illustration.
-   ──────────────────────────────────────────────────────────────────── */
 
 function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -161,7 +177,6 @@ function FlowField() {
       life: 60 + Math.random() * 180,
     }))
 
-    // analytic field: streamlines drifting across the canvas
     const angleAt = (x: number, y: number) => {
       const nx = x / width - 0.5
       const ny = y / height - 0.5
@@ -218,10 +233,6 @@ function FlowField() {
   )
 }
 
-/* ────────────────────────────────────────────────────────────────────
-   NAVBAR
-   ──────────────────────────────────────────────────────────────────── */
-
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
@@ -260,10 +271,6 @@ function Navbar() {
   )
 }
 
-/* ────────────────────────────────────────────────────────────────────
-   HERO
-   ──────────────────────────────────────────────────────────────────── */
-
 function Hero() {
   const [typed, setTyped] = useState('')
   const roleIdx = useRef(0)
@@ -301,7 +308,6 @@ function Hero() {
       <FlowField />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,7,13,0.2) 0%, rgba(8,7,13,0.55) 60%, var(--bg) 100%)' }} />
 
-      {/* signature marginalia */}
       <span className="annotation hide-mobile" style={{ top: '18%', left: '6%' }}>&nabla; &times; F</span>
       <span className="annotation hide-mobile" style={{ top: '70%', left: '9%' }}>&part;f / &part;x</span>
       <span className="annotation hide-mobile" style={{ top: '24%', right: '7%' }}>&Sigma; n &rarr; &infin;</span>
@@ -344,13 +350,6 @@ function Hero() {
     </section>
   )
 }
-
-/* ────────────────────────────────────────────────────────────────────
-   PHOTO FRAME
-   Crossfades between PHOTOS every 4 seconds. With a single photo it
-   just renders that one image — add more strings to PHOTOS to enable
-   the rotation.
-   ──────────────────────────────────────────────────────────────────── */
 
 function PhotoFrame() {
   const [index, setIndex] = useState(0)
@@ -404,10 +403,6 @@ function PhotoFrame() {
   )
 }
 
-/* ────────────────────────────────────────────────────────────────────
-   ABOUT
-   ──────────────────────────────────────────────────────────────────── */
-
 function About() {
   return (
     <section id="about" style={{ padding: '110px 0', position: 'relative' }}>
@@ -446,10 +441,6 @@ function About() {
   )
 }
 
-/* ────────────────────────────────────────────────────────────────────
-   SKILLS
-   ──────────────────────────────────────────────────────────────────── */
-
 function Skills() {
   return (
     <section id="skills" style={{ padding: '110px 0', background: 'linear-gradient(180deg, transparent, var(--bg-raised) 25%, var(--bg-raised) 75%, transparent)' }}>
@@ -477,10 +468,6 @@ function Skills() {
     </section>
   )
 }
-
-/* ────────────────────────────────────────────────────────────────────
-   PROJECTS
-   ──────────────────────────────────────────────────────────────────── */
 
 function Projects() {
   return (
@@ -515,10 +502,6 @@ function Projects() {
   )
 }
 
-/* ────────────────────────────────────────────────────────────────────
-   JOURNEY / TIMELINE
-   ──────────────────────────────────────────────────────────────────── */
-
 function Journey() {
   return (
     <section id="journey" style={{ padding: '110px 0', background: 'linear-gradient(180deg, transparent, var(--bg-raised) 18%, var(--bg-raised) 82%, transparent)' }}>
@@ -535,10 +518,7 @@ function Journey() {
                 {String(i + 1).padStart(2, '0')}
               </div>
               <div className="card" style={{ padding: '20px 24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6, flexWrap: 'wrap', gap: 8 }}>
-                  <h3 style={{ fontWeight: 700, fontSize: '0.95rem' }}>{item.title}</h3>
-                  <span className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--ink-faint)' }}>{item.year}</span>
-                </div>
+                <h3 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 6 }}>{item.title}</h3>
                 <p style={{ color: 'var(--ink-dim)', fontSize: '0.85rem', lineHeight: 1.65 }}>{item.sub}</p>
               </div>
             </div>
@@ -548,10 +528,6 @@ function Journey() {
     </section>
   )
 }
-
-/* ────────────────────────────────────────────────────────────────────
-   RESOURCES
-   ──────────────────────────────────────────────────────────────────── */
 
 function Resources() {
   return (
@@ -592,10 +568,6 @@ function Resources() {
     </section>
   )
 }
-
-/* ────────────────────────────────────────────────────────────────────
-   CONTACT
-   ──────────────────────────────────────────────────────────────────── */
 
 function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
@@ -648,10 +620,6 @@ function Contact() {
   )
 }
 
-/* ────────────────────────────────────────────────────────────────────
-   FOOTER
-   ──────────────────────────────────────────────────────────────────── */
-
 function Footer() {
   return (
     <footer style={{ borderTop: '1px solid var(--line)', padding: '28px 24px', textAlign: 'center' }}>
@@ -661,10 +629,6 @@ function Footer() {
     </footer>
   )
 }
-
-/* ────────────────────────────────────────────────────────────────────
-   PAGE
-   ──────────────────────────────────────────────────────────────────── */
 
 export default function Portfolio() {
   return (
