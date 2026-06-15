@@ -196,98 +196,6 @@ const RESOURCES = [
 
 const ROLES = ['Developer', 'Builder', 'Problem Solver', 'Hackathon Winner']
 
-function FlowField() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    const ctx = canvas?.getContext('2d')
-    if (!canvas || !ctx) return
-
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    let width = 0
-    let height = 0
-    let raf = 0
-    let t = 0
-    let particles: { x: number; y: number; life: number }[] = []
-
-    const resize = () => {
-      width = canvas.offsetWidth
-      height = canvas.offsetHeight
-      const dpr = window.devicePixelRatio || 1
-      canvas.width = width * dpr
-      canvas.height = height * dpr
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx.fillStyle = '#08070d'
-      ctx.fillRect(0, 0, width, height)
-    }
-    resize()
-    window.addEventListener('resize', resize)
-
-    if (reduced) return () => window.removeEventListener('resize', resize)
-
-    particles = Array.from({ length: 110 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      life: 60 + Math.random() * 180,
-    }))
-
-    const angleAt = (x: number, y: number) => {
-      const nx = x / width - 0.5
-      const ny = y / height - 0.5
-      return Math.sin(nx * 3.2 + t) * 1.6 + Math.cos(ny * 2.4 - t * 0.6) * 1.6
-    }
-
-    const draw = () => {
-      ctx.fillStyle = 'rgba(8,7,13,0.06)'
-      ctx.fillRect(0, 0, width, height)
-
-      for (const p of particles) {
-        const angle = angleAt(p.x, p.y)
-        const nx = p.x + Math.cos(angle) * 1.1
-        const ny = p.y + Math.sin(angle) * 1.1
-
-        const grad = ctx.createLinearGradient(p.x, p.y, nx, ny)
-        grad.addColorStop(0, 'rgba(140,123,255,0.0)')
-        grad.addColorStop(1, 'rgba(79,227,201,0.35)')
-        ctx.strokeStyle = grad
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.moveTo(p.x, p.y)
-        ctx.lineTo(nx, ny)
-        ctx.stroke()
-
-        p.x = nx
-        p.y = ny
-        p.life -= 1
-
-        if (p.life <= 0 || p.x < 0 || p.x > width || p.y < 0 || p.y > height) {
-          p.x = Math.random() * width
-          p.y = Math.random() * height
-          p.life = 60 + Math.random() * 180
-        }
-      }
-
-      t += 0.0026
-      raf = requestAnimationFrame(draw)
-    }
-    raf = requestAnimationFrame(draw)
-
-    return () => {
-      window.removeEventListener('resize', resize)
-      cancelAnimationFrame(raf)
-    }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }}
-    />
-  )
-}
-
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
@@ -352,9 +260,9 @@ function Hero() {
   }, [])
 
   return (
-    <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-      <FlowField />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,7,13,0.2) 0%, rgba(8,7,13,0.55) 60%, var(--bg) 100%)' }} />
+    <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden', background: 'var(--bg)' }}>
+      <div style={{ position: 'absolute', top: '20%', left: '10%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(124,111,255,0.08), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '15%', right: '8%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(79,227,201,0.06), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
       <span className="annotation hide-mobile" style={{ top: '18%', left: '6%' }}>&nabla; &times; F</span>
       <span className="annotation hide-mobile" style={{ top: '70%', left: '9%' }}>&part;f / &part;x</span>
       <span className="annotation hide-mobile" style={{ top: '24%', right: '7%' }}>&Sigma; n &rarr; &infin;</span>
