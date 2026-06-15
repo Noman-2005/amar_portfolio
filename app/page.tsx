@@ -165,7 +165,7 @@ const AWARDS = [
   },
   {
     title: 'Academic Excellence Award',
-    org: 'United International University',
+    org: 'BAF Shaheen College Kurmitola',
     image: '/award.jpg',
     accent: 'var(--violet)',
     emoji: '🏆',
