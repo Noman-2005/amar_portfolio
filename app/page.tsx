@@ -68,7 +68,7 @@ const PROJECTS = [
   },
   {
     title: 'Math Visualizer',
-    desc: 'An interactive tool to visualize vector fields, line integrals, and multivariable calculus concepts from coursework — the same idea behind this site\'s hero.',
+    desc: "An interactive tool to visualize vector fields, line integrals, and multivariable calculus concepts from coursework — the same idea behind this site's hero.",
     tags: ['JavaScript', 'Canvas API', 'Math'],
     emoji: '📐',
     accent: 'var(--teal)',
@@ -77,7 +77,7 @@ const PROJECTS = [
   },
 ]
 
-const TIMELINE = [
+const TIMELINE: { title: string; sub: string; status?: string }[] = [
   {
     title: 'Started Web Development',
     sub: 'Built first React projects and discovered a pull toward frontend engineering.',
@@ -88,31 +88,38 @@ const TIMELINE = [
   },
   {
     title: 'Calculus and Linear Algebra',
-    sub: 'Differentiation, integration, matrix operations, and their applications. GPA: 4.00 / 4.00',
+    sub: 'Differentiation, integration, matrix operations, and their applications.',
+    status: 'Completed with GPA 4.00 / 4.00',
   },
   {
     title: 'Coordinate Geometry and Vector Analysis',
-    sub: 'Vector fields, line integrals, Green\'s and Divergence theorems. GPA: 4.00 / 4.00',
+    sub: "Vector fields, line integrals, Green's and Divergence theorems.",
+    status: 'Completed with GPA 4.00 / 4.00',
   },
   {
     title: 'Discrete Mathematics',
-    sub: 'Logic, set theory, combinatorics, graph theory, and proof techniques. GPA: 3.67 / 4.00',
+    sub: 'Logic, set theory, combinatorics, graph theory, and proof techniques.',
+    status: 'Completed with GPA 3.67 / 4.00',
   },
   {
     title: 'Object Oriented Programming',
-    sub: 'Abstraction, polymorphism, interfaces, and exception handling applied through design patterns. Ongoing',
+    sub: 'Abstraction, polymorphism, interfaces, and exception handling applied through design patterns.',
+    status: 'Ongoing',
   },
   {
     title: 'Data Structures & Algorithms',
-    sub: 'Arrays, linked lists, trees, graphs, sorting and searching — and how to choose between them. GPA: 4.00 / 4.00',
+    sub: 'Arrays, linked lists, trees, graphs, sorting and searching — and how to choose between them.',
+    status: 'Completed with GPA 4.00 / 4.00',
   },
   {
     title: 'Theory of Computation',
-    sub: 'Automata, formal languages, Turing machines, and computational complexity. Ongoing',
+    sub: 'Automata, formal languages, Turing machines, and computational complexity.',
+    status: 'Ongoing',
   },
   {
     title: 'Digital Logic Design',
-    sub: 'Logic gates, boolean algebra, combinational and sequential circuits. GPA: 4.00 / 4.00',
+    sub: 'Logic gates, boolean algebra, combinational and sequential circuits.',
+    status: 'Completed with GPA 4.00 / 4.00',
   },
 ]
 
@@ -121,25 +128,24 @@ const RESOURCES = [
   { name: 'North South University', short: 'NSU', emoji: '🎓', desc: 'Leading private university in Bangladesh.', url: 'https://northsouth.edu', accent: 'var(--teal)' },
   { name: 'BRAC University', short: 'BRACU', emoji: '📚', desc: 'Top-ranked private university in Bangladesh.', url: 'https://bracu.ac.bd', accent: 'var(--amber)' },
   { name: 'Military Institute of Science and Technology', short: 'MIST', emoji: '⚙️', desc: 'Engineering and technology focused institution.', url: 'https://mist.ac.bd', accent: 'var(--violet)' },
-  { name: 'Bangladesh University of Engineering & Technology', short: 'BUET', emoji: '🔬', desc: 'Bangladesh\'s leading engineering university.', url: 'https://buet.ac.bd', accent: 'var(--teal)' },
+  { name: 'Bangladesh University of Engineering & Technology', short: 'BUET', emoji: '🔬', desc: "Bangladesh's leading engineering university.", url: 'https://buet.ac.bd', accent: 'var(--teal)' },
   { name: 'Armed Forces Medical College', short: 'AFMC', emoji: '🏥', desc: 'Premier medical institution in Bangladesh.', url: 'https://afmc.edu.bd', accent: 'var(--amber)' },
   { name: 'Massachusetts Institute of Technology', short: 'MIT', emoji: '🌍', desc: 'Global reference point for engineering education.', url: 'https://mit.edu', accent: 'var(--violet)' },
-  { name: 'Dhaka University', short: 'DU', emoji: '🎓', desc: 'Bangladesh\'s oldest and most prestigious public university.', url: 'https://www.du.ac.bd', accent: 'var(--teal)' },
+  { name: 'Dhaka University', short: 'DU', emoji: '🎓', desc: "Bangladesh's oldest and most prestigious public university.", url: 'https://www.du.ac.bd', accent: 'var(--teal)' },
   { name: 'Chittagong University of Engineering & Technology', short: 'CUET', emoji: '🏗️', desc: 'Leading public engineering university in Chattogram.', url: 'https://www.cuet.ac.bd', accent: 'var(--amber)' },
   { name: 'Khulna University of Engineering & Technology', short: 'KUET', emoji: '⚙️', desc: 'Public engineering university based in Khulna.', url: 'https://www.kuet.ac.bd', accent: 'var(--violet)' },
   { name: 'Bangladesh Military Academy', short: 'BMA', emoji: '🪖', desc: 'Officer training academy of the Bangladesh Army.', url: 'https://bma.gov.bd', accent: 'var(--teal)' },
   { name: 'Islamic University of Madinah', short: 'IUM', emoji: '🕌', desc: 'Major Islamic university in Madinah, Saudi Arabia.', url: 'https://www.iu.edu.sa', accent: 'var(--amber)' },
   { name: 'Umm Al-Qura University', short: 'UQU', emoji: '🕋', desc: 'Public university based in Makkah, Saudi Arabia.', url: 'https://uqu.edu.sa', accent: 'var(--violet)' },
-  { name: 'Peking University', short: 'PKU', emoji: '🏯', desc: 'One of China\'s most prestigious research universities.', url: 'https://www.pku.edu.cn', accent: 'var(--teal)' },
+  { name: 'Peking University', short: 'PKU', emoji: '🏯', desc: "One of China's most prestigious research universities.", url: 'https://www.pku.edu.cn', accent: 'var(--teal)' },
   { name: 'Tsinghua University', short: 'THU', emoji: '🎓', desc: 'Top-ranked Chinese university for engineering and tech.', url: 'https://www.tsinghua.edu.cn', accent: 'var(--amber)' },
-  { name: 'University of Oxford', short: 'OXFORD', emoji: '🏰', desc: 'World\'s oldest English-speaking university.', url: 'https://www.ox.ac.uk', accent: 'var(--violet)' },
+  { name: 'University of Oxford', short: 'OXFORD', emoji: '🏰', desc: "World's oldest English-speaking university.", url: 'https://www.ox.ac.uk', accent: 'var(--violet)' },
   { name: 'University of Cambridge', short: 'CAMBRIDGE', emoji: '📖', desc: 'Historic UK university renowned for research.', url: 'https://www.cam.ac.uk', accent: 'var(--teal)' },
   { name: 'Durham University', short: 'DURHAM', emoji: '🏰', desc: 'Leading UK university known for its collegiate system.', url: 'https://www.durham.ac.uk', accent: 'var(--amber)' },
-  { name: 'University of Zurich', short: 'UZH', emoji: '🏔️', desc: 'Switzerland\'s largest university.', url: 'https://www.uzh.ch', accent: 'var(--violet)' },
+  { name: 'University of Zurich', short: 'UZH', emoji: '🏔️', desc: "Switzerland's largest university.", url: 'https://www.uzh.ch', accent: 'var(--violet)' },
 ]
 
 const ROLES = ['Developer', 'Builder', 'Problem Solver', 'Hackathon Winner']
-
 function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -153,7 +159,6 @@ function FlowField() {
     let height = 0
     let raf = 0
     let t = 0
-
     let particles: { x: number; y: number; life: number }[] = []
 
     const resize = () => {
@@ -245,9 +250,7 @@ function Navbar() {
     <header
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
+        top: 0, left: 0, right: 0,
         zIndex: 100,
         padding: '0 24px',
         transition: 'all 0.3s ease',
@@ -315,7 +318,6 @@ function Hero() {
 
       <div className="container" style={{ position: 'relative', zIndex: 2, paddingTop: 96, paddingBottom: 64 }}>
         <div className="section-label">Portfolio &mdash; v2026.1</div>
-
         <h1 className="font-display" style={{ fontSize: 'clamp(2.6rem, 8vw, 5.4rem)', fontWeight: 800, lineHeight: 1.04, marginBottom: 22, maxWidth: 820 }}>
           Hi, I&rsquo;m <span className="gradient-text">Noman</span> &mdash;
           <br />
@@ -323,17 +325,14 @@ function Hero() {
           <span className="gradient-text">{typed}</span>
           <span className="cursor-blink" style={{ color: 'var(--teal)' }}>_</span>
         </h1>
-
         <p style={{ color: 'var(--ink-dim)', fontSize: '1.05rem', lineHeight: 1.75, maxWidth: 540, marginBottom: 36 }}>
           I build fast, thoughtful software &mdash; from AI-powered web apps to elegant Java systems &mdash;
           grounded in calculus and linear algebra. Currently studying CSE at UIU and shipping things that matter.
         </p>
-
         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 64 }}>
           <a href="#projects" className="btn-primary">View my work &rarr;</a>
           <a href="#contact" className="btn-outline">Get in touch</a>
         </div>
-
         <div style={{ display: 'flex', gap: 48, flexWrap: 'wrap' }}>
           {[
             { value: '10+', label: 'Projects built' },
@@ -356,9 +355,7 @@ function PhotoFrame() {
 
   useEffect(() => {
     if (PHOTOS.length <= 1) return
-    const id = setInterval(() => {
-      setIndex(i => (i + 1) % PHOTOS.length)
-    }, 4000)
+    const id = setInterval(() => setIndex(i => (i + 1) % PHOTOS.length), 4000)
     return () => clearInterval(id)
   }, [])
 
@@ -373,10 +370,8 @@ function PhotoFrame() {
             width={220}
             height={220}
             style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
               objectFit: 'cover',
               opacity: i === index ? 1 : 0,
               transition: 'opacity 0.9s ease',
@@ -388,14 +383,7 @@ function PhotoFrame() {
       {PHOTOS.length > 1 && (
         <div style={{ position: 'absolute', bottom: -22, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
           {PHOTOS.map((_, i) => (
-            <span
-              key={i}
-              style={{
-                width: 6, height: 6, borderRadius: '50%',
-                background: i === index ? 'var(--teal)' : 'var(--line-strong)',
-                transition: 'background 0.3s ease',
-              }}
-            />
+            <span key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: i === index ? 'var(--teal)' : 'var(--line-strong)', transition: 'background 0.3s ease' }} />
           ))}
         </div>
       )}
@@ -411,12 +399,10 @@ function About() {
           <PhotoFrame />
           <div style={{ position: 'absolute', bottom: 6, right: '32%', width: 18, height: 18, borderRadius: '50%', background: 'var(--teal)', border: '3px solid var(--bg)', boxShadow: '0 0 14px rgba(79,227,201,0.7)' }} />
         </div>
-
         <div>
           <div className="section-label">About me</div>
           <h2 className="font-display" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, lineHeight: 1.12, marginBottom: 20 }}>
-            I code. I ship.
-            <br />
+            I code. I ship.<br />
             <span className="gradient-text">I don&rsquo;t stop.</span>
           </h2>
           <p style={{ color: 'var(--ink-dim)', lineHeight: 1.85, marginBottom: 16, fontSize: '0.95rem' }}>
@@ -520,6 +506,17 @@ function Journey() {
               <div className="card" style={{ padding: '20px 24px' }}>
                 <h3 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 6 }}>{item.title}</h3>
                 <p style={{ color: 'var(--ink-dim)', fontSize: '0.85rem', lineHeight: 1.65 }}>{item.sub}</p>
+                {item.status && (
+                  <p style={{
+                    marginTop: 8,
+                    fontSize: '0.72rem',
+                    color: item.status === 'Ongoing' ? 'var(--amber)' : 'var(--teal)',
+                    fontFamily: 'var(--font-mono)',
+                    letterSpacing: '0.04em',
+                  }}>
+                    Status: {item.status}
+                  </p>
+                )}
               </div>
             </div>
           ))}
@@ -576,9 +573,7 @@ function Contact() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const subject = encodeURIComponent(`Portfolio inquiry from ${form.name || 'a visitor'}`)
-    const body = encodeURIComponent(
-      `${form.message}\n\n\u2014\nFrom: ${form.name}\nEmail: ${form.email}`
-    )
+    const body = encodeURIComponent(`${form.message}\n\n\u2014\nFrom: ${form.name}\nEmail: ${form.email}`)
     window.location.href = `mailto:${SOCIALS.email}?subject=${subject}&body=${body}`
     setSent(true)
     setTimeout(() => setSent(false), 4000)
