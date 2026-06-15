@@ -210,19 +210,16 @@ function FlowField() {
     let raf = 0
     let t = 0
 
-    type Shard = {
+    type Orb = {
       x: number
       y: number
-      vx: number
-      vy: number
-      rotation: number
-      rotSpeed: number
-      size: number
+      radius: number
+      speedX: number
+      speedY: number
       color: string
-      alpha: number
-      life: number
     }
-    let shards: Shard[] = []
+
+    let orbs: Orb[] = []
 
     const resize = () => {
       width = canvas.offsetWidth
@@ -233,6 +230,42 @@ function FlowField() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.fillStyle = '#08070d'
       ctx.fillRect(0, 0, width, height)
+
+      // Initialize orbs on resize
+      orbs = [
+        {
+          x: width * 0.3,
+          y: height * 0.5,
+          radius: Math.min(width, height) * 0.25,
+          speedX: 0.2,
+          speedY: 0.15,
+          color: 'rgba(79, 227, 201, ',
+        },
+        {
+          x: width * 0.6,
+          y: height * 0.4,
+          radius: Math.min(width, height) * 0.2,
+          speedX: -0.18,
+          speedY: 0.22,
+          color: 'rgba(124, 111, 255, ',
+        },
+        {
+          x: width * 0.5,
+          y: height * 0.7,
+          radius: Math.min(width, height) * 0.22,
+          speedX: 0.15,
+          speedY: -0.2,
+          color: 'rgba(192, 132, 252, ',
+        },
+        {
+          x: width * 0.2,
+          y: height * 0.3,
+          radius: Math.min(width, height) * 0.15,
+          speedX: 0.25,
+          speedY: 0.1,
+          color: 'rgba(56, 189, 248, ',
+        },
+      ]
     }
     resize()
 
@@ -241,76 +274,9 @@ function FlowField() {
 
     if (reduced) return () => resizeObserver.disconnect()
 
-    // Initialize shards
-    const initShards = () => {
-      const centerX = width / 2
-      const centerY = height / 2
-      const shardCount = 120
-      const colors = [
-        'rgba(79, 227, 201, ',
-        'rgba(124, 111, 255, ',
-        'rgba(192, 132, 252, ',
-        'rgba(56, 189, 248, ',
-      ]
-      
-      shards = []
-      for (let i = 0; i < shardCount; i++) {
-        const angle = Math.random() * Math.PI * 2
-        const speed = 1 + Math.random() * 4
-        const color = colors[Math.floor(Math.random() * colors.length)]
-        
-        shards.push({
-          x: centerX,
-          y: centerY,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          rotation: Math.random() * Math.PI * 2,
-          rotSpeed: (Math.random() - 0.5) * 0.05,
-          size: 3 + Math.random() * 8,
-          color: color,
-          alpha: 0.8 + Math.random() * 0.2,
-          life: 1,
-        })
-      }
-    }
-
-    // Draw a triangle shard
-    const drawShard = (x: number, y: number, size: number, rotation: number, color: string, alpha: number) => {
-      ctx.save()
-      ctx.translate(x, y)
-      ctx.rotate(rotation)
-      ctx.beginPath()
-      
-      // Random triangular/polygonal shape
-      const points = 3 + Math.floor(Math.random() * 2)
-      for (let i = 0; i < points; i++) {
-        const angle = (i / points) * Math.PI * 2
-        const radius = size * (0.6 + Math.random() * 0.4)
-        const px = Math.cos(angle) * radius
-        const py = Math.sin(angle) * radius
-        if (i === 0) ctx.moveTo(px, py)
-        else ctx.lineTo(px, py)
-      }
-      ctx.closePath()
-      
-      ctx.fillStyle = color + alpha + ')'
-      ctx.fill()
-      
-      // Add edge glow
-      ctx.strokeStyle = color + (alpha * 0.6) + ')'
-      ctx.lineWidth = 0.5
-      ctx.stroke()
-      
-      ctx.restore()
-    }
-
-    // Trigger shatter effect periodically
-    let shatterTimer = 0
-    const shatterInterval = 180 // frames between shatters
-
     const draw = () => {
       // Fade trail
-      ctx.fillStyle = 'rgba(8,7,13,0.12)'
+      ctx.fillStyle = 'rgba(8,7,13,0.08)'
       ctx.fillRect(0, 0, width, height)
 
       // ── AURORA LAYER ──────────────────────────────────
@@ -323,10 +289,10 @@ function FlowField() {
         const ry = height * (0.14 + 0.06 * Math.cos(t * 0.35 + offset))
 
         const colorSets = [
-          'rgba(79,227,201,0.07)',
-          'rgba(124,111,255,0.06)',
-          'rgba(192,132,252,0.055)',
-          'rgba(56,189,248,0.055)',
+          'rgba(79,227,201,0.06)',
+          'rgba(124,111,255,0.05)',
+          'rgba(192,132,252,0.045)',
+          'rgba(56,189,248,0.045)',
         ]
 
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx)
@@ -343,94 +309,87 @@ function FlowField() {
         ctx.restore()
       }
 
-      // ── CRYSTAL SHATTER LAYER ─────────────────────────
-      
-      // Update and draw shards
-      for (let i = shards.length - 1; i >= 0; i--) {
-        const s = shards[i]
-        
-        // Update position
-        s.x += s.vx
-        s.y += s.vy
-        s.rotation += s.rotSpeed
-        s.life -= 0.003
-        
-        // Apply gravity
-        s.vy += 0.03
-        
-        // Apply drag
-        s.vx *= 0.99
-        s.vy *= 0.99
-        
-        // Remove dead shards or out of bounds
-        if (s.life <= 0 || s.x < -50 || s.x > width + 50 || s.y < -50 || s.y > height + 100) {
-          shards.splice(i, 1)
-          continue
+      // ── GLOWING ORBS LAYER ────────────────────────────
+      // Update orb positions
+      for (const orb of orbs) {
+        orb.x += orb.speedX
+        orb.y += orb.speedY
+
+        // Bounce off edges with padding
+        const padding = orb.radius
+        if (orb.x - padding < 0) {
+          orb.x = padding
+          orb.speedX = Math.abs(orb.speedX)
         }
-        
-        // Draw the shard
-        const alpha = s.alpha * s.life
-        drawShard(s.x, s.y, s.size * (0.3 + s.life * 0.7), s.rotation, s.color, alpha)
-      }
-      
-      // Trigger new shatter periodically
-      shatterTimer++
-      if (shatterTimer >= shatterInterval && shards.length < 80) {
-        shatterTimer = 0
-        
-        // Create explosion at random point or center
-        const centerX = width / 2 + (Math.random() - 0.5) * width * 0.6
-        const centerY = height / 2 + (Math.random() - 0.5) * height * 0.6
-        const shardCount = 25 + Math.floor(Math.random() * 20)
-        const colors = [
-          'rgba(79, 227, 201, ',
-          'rgba(124, 111, 255, ',
-          'rgba(192, 132, 252, ',
-          'rgba(56, 189, 248, ',
-        ]
-        
-        for (let i = 0; i < shardCount; i++) {
-          const angle = Math.random() * Math.PI * 2
-          const speed = 2 + Math.random() * 5
-          const color = colors[Math.floor(Math.random() * colors.length)]
-          
-          shards.push({
-            x: centerX,
-            y: centerY,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            rotation: Math.random() * Math.PI * 2,
-            rotSpeed: (Math.random() - 0.5) * 0.08,
-            size: 2 + Math.random() * 7,
-            color: color,
-            alpha: 0.7 + Math.random() * 0.3,
-            life: 0.8 + Math.random() * 0.4,
-          })
+        if (orb.x + padding > width) {
+          orb.x = width - padding
+          orb.speedX = -Math.abs(orb.speedX)
+        }
+        if (orb.y - padding < 0) {
+          orb.y = padding
+          orb.speedY = Math.abs(orb.speedY)
+        }
+        if (orb.y + padding > height) {
+          orb.y = height - padding
+          orb.speedY = -Math.abs(orb.speedY)
         }
       }
+
+      // Draw orbs with blend mode for premium look
+      ctx.globalCompositeOperation = 'screen'
       
-      // Draw a subtle crystal core that pulses before shattering
-      const centerX = width / 2
-      const centerY = height / 2
-      const pulse = 0.5 + Math.sin(t * 8) * 0.2
-      const coreGlow = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 40 * pulse)
-      coreGlow.addColorStop(0, 'rgba(192, 132, 252, 0.15)')
-      coreGlow.addColorStop(0.5, 'rgba(124, 111, 255, 0.08)')
-      coreGlow.addColorStop(1, 'rgba(8, 7, 13, 0)')
-      ctx.beginPath()
-      ctx.arc(centerX, centerY, 60 * pulse, 0, Math.PI * 2)
-      ctx.fillStyle = coreGlow
-      ctx.fill()
+      for (const orb of orbs) {
+        const pulse = 0.85 + Math.sin(t * 1.5) * 0.1
+        const currentRadius = orb.radius * pulse
+        
+        // Outer glow (large, faint)
+        const outerGlow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, currentRadius * 1.8)
+        outerGlow.addColorStop(0, orb.color + '0)')
+        outerGlow.addColorStop(0.3, orb.color + '0.03)')
+        outerGlow.addColorStop(0.6, orb.color + '0.08)')
+        outerGlow.addColorStop(1, orb.color + '0)')
+        
+        ctx.beginPath()
+        ctx.arc(orb.x, orb.y, currentRadius * 1.8, 0, Math.PI * 2)
+        ctx.fillStyle = outerGlow
+        ctx.fill()
+        
+        // Mid glow (soft core)
+        const midGlow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, currentRadius * 0.8)
+        midGlow.addColorStop(0, orb.color + '0.15)')
+        midGlow.addColorStop(0.5, orb.color + '0.1)')
+        midGlow.addColorStop(1, orb.color + '0)')
+        
+        ctx.beginPath()
+        ctx.arc(orb.x, orb.y, currentRadius * 0.8, 0, Math.PI * 2)
+        ctx.fillStyle = midGlow
+        ctx.fill()
+        
+        // Core (bright center)
+        const coreGlow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, currentRadius * 0.25)
+        coreGlow.addColorStop(0, orb.color + '0.4)')
+        coreGlow.addColorStop(0.6, orb.color + '0.15)')
+        coreGlow.addColorStop(1, orb.color + '0)')
+        
+        ctx.beginPath()
+        ctx.arc(orb.x, orb.y, currentRadius * 0.35, 0, Math.PI * 2)
+        ctx.fillStyle = coreGlow
+        ctx.fill()
+        
+        // Hot center point
+        ctx.beginPath()
+        ctx.arc(orb.x, orb.y, currentRadius * 0.08, 0, Math.PI * 2)
+        ctx.fillStyle = orb.color + '0.7)'
+        ctx.fill()
+      }
+      
+      // Reset blend mode
+      ctx.globalCompositeOperation = 'source-over'
 
       t += 0.008
       raf = requestAnimationFrame(draw)
     }
 
-    // Start with initial shards
-    setTimeout(() => {
-      if (width > 0) initShards()
-    }, 100)
-    
     raf = requestAnimationFrame(draw)
 
     return () => {
