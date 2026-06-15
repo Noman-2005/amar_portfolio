@@ -210,17 +210,6 @@ function FlowField() {
     let raf = 0
     let t = 0
 
-    type Orb = {
-      x: number
-      y: number
-      radius: number
-      speedX: number
-      speedY: number
-      color: string
-    }
-
-    let orbs: Orb[] = []
-
     const resize = () => {
       width = canvas.offsetWidth
       height = canvas.offsetHeight
@@ -230,42 +219,6 @@ function FlowField() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.fillStyle = '#08070d'
       ctx.fillRect(0, 0, width, height)
-
-      // Initialize orbs on resize
-      orbs = [
-        {
-          x: width * 0.3,
-          y: height * 0.5,
-          radius: Math.min(width, height) * 0.25,
-          speedX: 0.2,
-          speedY: 0.15,
-          color: 'rgba(79, 227, 201, ',
-        },
-        {
-          x: width * 0.6,
-          y: height * 0.4,
-          radius: Math.min(width, height) * 0.2,
-          speedX: -0.18,
-          speedY: 0.22,
-          color: 'rgba(124, 111, 255, ',
-        },
-        {
-          x: width * 0.5,
-          y: height * 0.7,
-          radius: Math.min(width, height) * 0.22,
-          speedX: 0.15,
-          speedY: -0.2,
-          color: 'rgba(192, 132, 252, ',
-        },
-        {
-          x: width * 0.2,
-          y: height * 0.3,
-          radius: Math.min(width, height) * 0.15,
-          speedX: 0.25,
-          speedY: 0.1,
-          color: 'rgba(56, 189, 248, ',
-        },
-      ]
     }
     resize()
 
@@ -275,116 +228,71 @@ function FlowField() {
     if (reduced) return () => resizeObserver.disconnect()
 
     const draw = () => {
-      // Fade trail
-      ctx.fillStyle = 'rgba(8,7,13,0.08)'
+      // Very subtle fade trail for smooth motion
+      ctx.fillStyle = 'rgba(8,7,13,0.05)'
       ctx.fillRect(0, 0, width, height)
 
-      // ── AURORA LAYER ──────────────────────────────────
-      const auroraCount = 4
-      for (let i = 0; i < auroraCount; i++) {
-        const offset = (i / auroraCount) * Math.PI * 2
-        const cx = width * (0.2 + 0.6 * ((Math.sin(t * 0.3 + offset) + 1) / 2))
-        const cy = height * (0.1 + 0.5 * ((Math.sin(t * 0.2 + offset * 1.3) + 1) / 2))
-        const rx = width * (0.28 + 0.1 * Math.sin(t * 0.4 + offset))
-        const ry = height * (0.14 + 0.06 * Math.cos(t * 0.35 + offset))
+      const centerX = width / 2
+      const centerY = height / 2
 
-        const colorSets = [
-          'rgba(79,227,201,0.06)',
-          'rgba(124,111,255,0.05)',
-          'rgba(192,132,252,0.045)',
-          'rgba(56,189,248,0.045)',
-        ]
+      // ── AURORA (very subtle background) ───────────────
+      for (let i = 0; i < 3; i++) {
+        const offset = i * Math.PI * 2 / 3
+        const cx = width * (0.3 + 0.4 * Math.sin(t * 0.2 + offset))
+        const cy = height * (0.3 + 0.4 * Math.cos(t * 0.15 + offset))
+        const radius = width * 0.4
 
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx)
-        grad.addColorStop(0, colorSets[i])
-        grad.addColorStop(0.5, colorSets[i])
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius)
+        grad.addColorStop(0, 'rgba(79, 227, 201, 0.03)')
+        grad.addColorStop(0.5, 'rgba(124, 111, 255, 0.02)')
         grad.addColorStop(1, 'rgba(8,7,13,0)')
 
-        ctx.save()
-        ctx.scale(1, ry / rx)
         ctx.beginPath()
-        ctx.arc(cx, cy * (rx / ry), rx, 0, Math.PI * 2)
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2)
         ctx.fillStyle = grad
         ctx.fill()
-        ctx.restore()
       }
 
-      // ── GLOWING ORBS LAYER ────────────────────────────
-      // Update orb positions
-      for (const orb of orbs) {
-        orb.x += orb.speedX
-        orb.y += orb.speedY
+      // ── SINGLE GLOWING ORB ────────────────────────────
+      const orbX = centerX + Math.sin(t * 0.2) * width * 0.1
+      const orbY = centerY + Math.cos(t * 0.17) * height * 0.08
+      const orbRadius = Math.min(width, height) * 0.12
+      const pulse = 0.95 + Math.sin(t * 1.2) * 0.03
 
-        // Bounce off edges with padding
-        const padding = orb.radius
-        if (orb.x - padding < 0) {
-          orb.x = padding
-          orb.speedX = Math.abs(orb.speedX)
-        }
-        if (orb.x + padding > width) {
-          orb.x = width - padding
-          orb.speedX = -Math.abs(orb.speedX)
-        }
-        if (orb.y - padding < 0) {
-          orb.y = padding
-          orb.speedY = Math.abs(orb.speedY)
-        }
-        if (orb.y + padding > height) {
-          orb.y = height - padding
-          orb.speedY = -Math.abs(orb.speedY)
-        }
-      }
-
-      // Draw orbs with blend mode for premium look
-      ctx.globalCompositeOperation = 'screen'
+      // Massive outer glow
+      const outerGlow = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, orbRadius * 2.5)
+      outerGlow.addColorStop(0, 'rgba(200, 210, 255, 0)')
+      outerGlow.addColorStop(0.3, 'rgba(150, 160, 255, 0.03)')
+      outerGlow.addColorStop(0.7, 'rgba(100, 120, 255, 0.02)')
+      outerGlow.addColorStop(1, 'rgba(8,7,13,0)')
       
-      for (const orb of orbs) {
-        const pulse = 0.85 + Math.sin(t * 1.5) * 0.1
-        const currentRadius = orb.radius * pulse
-        
-        // Outer glow (large, faint)
-        const outerGlow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, currentRadius * 1.8)
-        outerGlow.addColorStop(0, orb.color + '0)')
-        outerGlow.addColorStop(0.3, orb.color + '0.03)')
-        outerGlow.addColorStop(0.6, orb.color + '0.08)')
-        outerGlow.addColorStop(1, orb.color + '0)')
-        
-        ctx.beginPath()
-        ctx.arc(orb.x, orb.y, currentRadius * 1.8, 0, Math.PI * 2)
-        ctx.fillStyle = outerGlow
-        ctx.fill()
-        
-        // Mid glow (soft core)
-        const midGlow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, currentRadius * 0.8)
-        midGlow.addColorStop(0, orb.color + '0.15)')
-        midGlow.addColorStop(0.5, orb.color + '0.1)')
-        midGlow.addColorStop(1, orb.color + '0)')
-        
-        ctx.beginPath()
-        ctx.arc(orb.x, orb.y, currentRadius * 0.8, 0, Math.PI * 2)
-        ctx.fillStyle = midGlow
-        ctx.fill()
-        
-        // Core (bright center)
-        const coreGlow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, currentRadius * 0.25)
-        coreGlow.addColorStop(0, orb.color + '0.4)')
-        coreGlow.addColorStop(0.6, orb.color + '0.15)')
-        coreGlow.addColorStop(1, orb.color + '0)')
-        
-        ctx.beginPath()
-        ctx.arc(orb.x, orb.y, currentRadius * 0.35, 0, Math.PI * 2)
-        ctx.fillStyle = coreGlow
-        ctx.fill()
-        
-        // Hot center point
-        ctx.beginPath()
-        ctx.arc(orb.x, orb.y, currentRadius * 0.08, 0, Math.PI * 2)
-        ctx.fillStyle = orb.color + '0.7)'
-        ctx.fill()
-      }
+      ctx.beginPath()
+      ctx.arc(orbX, orbY, orbRadius * 2.5, 0, Math.PI * 2)
+      ctx.fillStyle = outerGlow
+      ctx.fill()
+
+      // Soft glow
+      const softGlow = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, orbRadius * 1.2)
+      softGlow.addColorStop(0, 'rgba(220, 230, 255, 0.08)')
+      softGlow.addColorStop(0.5, 'rgba(180, 190, 255, 0.04)')
+      softGlow.addColorStop(1, 'rgba(100, 120, 255, 0)')
       
-      // Reset blend mode
-      ctx.globalCompositeOperation = 'source-over'
+      ctx.beginPath()
+      ctx.arc(orbX, orbY, orbRadius * 1.2, 0, Math.PI * 2)
+      ctx.fillStyle = softGlow
+      ctx.fill()
+
+      // Core orb (barely visible, elegant)
+      const coreGrad = ctx.createRadialGradient(orbX - orbRadius*0.2, orbY - orbRadius*0.2, 0, orbX, orbY, orbRadius * pulse)
+      coreGrad.addColorStop(0, 'rgba(255, 255, 255, 0.12)')
+      coreGrad.addColorStop(0.4, 'rgba(200, 210, 255, 0.06)')
+      coreGrad.addColorStop(0.7, 'rgba(150, 160, 255, 0.02)')
+      coreGrad.addColorStop(1, 'rgba(100, 120, 255, 0)')
+      
+      ctx.beginPath()
+      ctx.arc(orbX, orbY, orbRadius * pulse, 0, Math.PI * 2)
+      ctx.fillStyle = coreGrad
+      ctx.fill()
 
       t += 0.008
       raf = requestAnimationFrame(draw)
