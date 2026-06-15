@@ -210,9 +210,6 @@ function FlowField() {
     let raf = 0
     let t = 0
 
-    type Star = { x: number; y: number; radius: number; alpha: number; speed: number; phase: number }
-    let stars: Star[] = []
-
     const resize = () => {
       width = canvas.offsetWidth
       height = canvas.offsetHeight
@@ -230,19 +227,9 @@ function FlowField() {
 
     if (reduced) return () => resizeObserver.disconnect()
 
-    // Init stars
-    stars = Array.from({ length: 160 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      radius: 0.3 + Math.random() * 1.4,
-      alpha: Math.random(),
-      speed: 0.004 + Math.random() * 0.012,
-      phase: Math.random() * Math.PI * 2,
-    }))
-
     const draw = () => {
       // Fade trail
-      ctx.fillStyle = 'rgba(8,7,13,0.18)'
+      ctx.fillStyle = 'rgba(8,7,13,0.12)'
       ctx.fillRect(0, 0, width, height)
 
       // ── AURORA LAYER ──────────────────────────────────
@@ -255,10 +242,10 @@ function FlowField() {
         const ry = height * (0.14 + 0.06 * Math.cos(t * 0.35 + offset))
 
         const colorSets = [
-          'rgba(79,227,201,0.07)',
-          'rgba(124,111,255,0.06)',
-          'rgba(192,132,252,0.055)',
-          'rgba(56,189,248,0.055)',
+          'rgba(79,227,201,0.08)',
+          'rgba(124,111,255,0.07)',
+          'rgba(192,132,252,0.06)',
+          'rgba(56,189,248,0.06)',
         ]
 
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx)
@@ -275,126 +262,121 @@ function FlowField() {
         ctx.restore()
       }
 
-      // ── WAVE INTERFERENCE LAYER ────────────────────────
-      const waves = [
-        { freqX: 0.008, freqY: 0.012, phaseX: t * 0.5, phaseY: t * 0.3, amplitude: 30, color: 'rgba(79,227,201,0.15)' },
-        { freqX: 0.015, freqY: 0.009, phaseX: t * 0.7, phaseY: t * 0.4, amplitude: 25, color: 'rgba(124,111,255,0.12)' },
-        { freqX: 0.011, freqY: 0.014, phaseX: t * 0.3, phaseY: t * 0.8, amplitude: 35, color: 'rgba(192,132,252,0.1)' },
-      ]
+      // ── ELECTRIC GRID LAYER ───────────────────────────
+      const gridSpacing = 35
+      const centerX = width / 2
+      const centerY = height / 2
+      const pulse = Math.sin(t * 1.5) * 0.3 + 0.7
 
-      // Draw interference grid lines
-      const step = 30
-      ctx.lineWidth = 1.5
-      ctx.globalAlpha = 0.6
-
-      for (let x = 0; x < width; x += step) {
+      // Draw vertical grid lines
+      for (let x = 0; x < width + gridSpacing; x += gridSpacing) {
+        const distFromCenter = Math.abs(x - centerX) / centerX
+        const ripple = Math.sin(t * 2 + x * 0.02) * 8 * pulse
+        
         ctx.beginPath()
-        let lastY = 0
-        for (let y = 0; y < height; y += 5) {
-          let displacement = 0
-          for (const wave of waves) {
-            displacement += Math.sin(x * wave.freqX + wave.phaseX) * Math.cos(y * wave.freqY + wave.phaseY) * wave.amplitude
-          }
-          const offsetX = x + displacement * 0.3
-          const offsetY = y + displacement * 0.2
+        for (let y = 0; y < height; y += 8) {
+          const waveOffset = Math.sin(y * 0.02 + t * 3) * 3 * (1 - distFromCenter)
+          const offsetX = x + ripple + waveOffset
           
           if (y === 0) {
-            ctx.moveTo(offsetX, offsetY)
+            ctx.moveTo(offsetX, y)
           } else {
-            ctx.lineTo(offsetX, offsetY)
+            ctx.lineTo(offsetX, y)
           }
-          lastY = offsetY
         }
-        ctx.strokeStyle = `rgba(124,111,255,0.08)`
+        
+        const intensity = 0.1 + (1 - distFromCenter) * 0.12 * pulse
+        ctx.strokeStyle = `rgba(79, 227, 201, ${intensity})`
+        ctx.lineWidth = 1.2
         ctx.stroke()
       }
 
-      for (let y = 0; y < height; y += step) {
+      // Draw horizontal grid lines
+      for (let y = 0; y < height + gridSpacing; y += gridSpacing) {
+        const distFromCenter = Math.abs(y - centerY) / centerY
+        const ripple = Math.sin(t * 2.2 + y * 0.02) * 8 * pulse
+        
         ctx.beginPath()
-        for (let x = 0; x < width; x += 5) {
-          let displacement = 0
-          for (const wave of waves) {
-            displacement += Math.sin(x * wave.freqX + wave.phaseX) * Math.cos(y * wave.freqY + wave.phaseY) * wave.amplitude
-          }
-          const offsetX = x + displacement * 0.3
-          const offsetY = y + displacement * 0.2
+        for (let x = 0; x < width; x += 8) {
+          const waveOffset = Math.sin(x * 0.02 + t * 2.5) * 3 * (1 - distFromCenter)
+          const offsetY = y + ripple + waveOffset
           
           if (x === 0) {
-            ctx.moveTo(offsetX, offsetY)
+            ctx.moveTo(x, offsetY)
           } else {
-            ctx.lineTo(offsetX, offsetY)
+            ctx.lineTo(x, offsetY)
           }
         }
-        ctx.strokeStyle = `rgba(56,189,248,0.08)`
+        
+        const intensity = 0.1 + (1 - distFromCenter) * 0.12 * pulse
+        ctx.strokeStyle = `rgba(124, 111, 255, ${intensity})`
+        ctx.lineWidth = 1.2
         ctx.stroke()
       }
 
-      // ── WAVE PEAKS (glowing nodes at interference maxima) ──
-      const nodeStep = 45
-      for (let x = nodeStep; x < width; x += nodeStep) {
-        for (let y = nodeStep; y < height; y += nodeStep) {
-          let intensity = 0
-          for (const wave of waves) {
-            intensity += Math.sin(x * wave.freqX + wave.phaseX) * Math.cos(y * wave.freqY + wave.phaseY)
-          }
-          intensity = Math.abs(intensity) / waves.length
+      // ── GLOWING NODES (intersection points) ───────────
+      for (let x = gridSpacing; x < width; x += gridSpacing) {
+        for (let y = gridSpacing; y < height; y += gridSpacing) {
+          const distFromCenter = Math.sqrt(
+            Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+          ) / Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2))
           
-          if (intensity > 0.6) {
-            const radius = 2 + intensity * 3
-            const glow = ctx.createRadialGradient(x, y, 0, x, y, radius * 3)
-            glow.addColorStop(0, `rgba(79,227,201,${intensity * 0.4})`)
-            glow.addColorStop(1, 'rgba(79,227,201,0)')
+          const nodePulse = (Math.sin(t * 3 + x * 0.02 + y * 0.02) + 1) / 2
+          const intensity = 0.3 * (1 - distFromCenter) * nodePulse * pulse
+          
+          if (intensity > 0.1) {
+            const radius = 2 + nodePulse * 3 * pulse
+            const glow = ctx.createRadialGradient(x, y, 0, x, y, radius * 2.5)
+            glow.addColorStop(0, `rgba(79, 227, 201, ${intensity * 0.7})`)
+            glow.addColorStop(0.5, `rgba(124, 111, 255, ${intensity * 0.3})`)
+            glow.addColorStop(1, 'rgba(79, 227, 201, 0)')
+            
             ctx.beginPath()
-            ctx.arc(x, y, radius * 3, 0, Math.PI * 2)
+            ctx.arc(x, y, radius * 2.5, 0, Math.PI * 2)
             ctx.fillStyle = glow
             ctx.fill()
             
             ctx.beginPath()
-            ctx.arc(x, y, radius, 0, Math.PI * 2)
-            ctx.fillStyle = `rgba(200,220,255,${intensity * 0.6})`
+            ctx.arc(x, y, radius * 0.8, 0, Math.PI * 2)
+            ctx.fillStyle = `rgba(200, 220, 255, ${intensity * 0.8})`
             ctx.fill()
           }
         }
       }
 
-      // ── TWINKLING STARS LAYER ─────────────────────────
-      for (const star of stars) {
-        star.phase += star.speed
-        star.alpha = 0.15 + 0.85 * ((Math.sin(star.phase) + 1) / 2)
-
-        // Star glow
-        const glow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.radius * 4)
-        glow.addColorStop(0, `rgba(200,210,255,${star.alpha * 0.6})`)
-        glow.addColorStop(1, 'rgba(200,210,255,0)')
+      // ── ELECTRIC ARC PULSES FROM CENTER ───────────────
+      const arcCount = 8
+      for (let i = 0; i < arcCount; i++) {
+        const angle = (i / arcCount) * Math.PI * 2 + t * 2
+        const endX = centerX + Math.cos(angle) * width * 0.6
+        const endY = centerY + Math.sin(angle) * height * 0.6
+        
         ctx.beginPath()
-        ctx.arc(star.x, star.y, star.radius * 4, 0, Math.PI * 2)
-        ctx.fillStyle = glow
-        ctx.fill()
-
-        // Star core
-        ctx.beginPath()
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(220,230,255,${star.alpha})`
-        ctx.fill()
-
-        // Cross sparkle on brighter stars
-        if (star.radius > 1.1 && star.alpha > 0.7) {
-          ctx.strokeStyle = `rgba(200,220,255,${star.alpha * 0.4})`
-          ctx.lineWidth = 0.5
-          const len = star.radius * 3.5
-          ctx.beginPath()
-          ctx.moveTo(star.x - len, star.y)
-          ctx.lineTo(star.x + len, star.y)
-          ctx.stroke()
-          ctx.beginPath()
-          ctx.moveTo(star.x, star.y - len)
-          ctx.lineTo(star.x, star.y + len)
-          ctx.stroke()
+        ctx.moveTo(centerX, centerY)
+        
+        for (let j = 0; j <= 20; j++) {
+          const t2 = j / 20
+          const px = centerX + (endX - centerX) * t2
+          const py = centerY + (endY - centerY) * t2
+          
+          const zigzag = Math.sin(j * 0.8 - t * 10) * 5 * (1 - t2)
+          const offsetX = zigzag * Math.cos(angle + 1.5)
+          const offsetY = zigzag * Math.sin(angle + 1.5)
+          
+          if (j === 0) {
+            ctx.moveTo(px + offsetX, py + offsetY)
+          } else {
+            ctx.lineTo(px + offsetX, py + offsetY)
+          }
         }
+        
+        const intensity = 0.15 + Math.sin(t * 3 + angle) * 0.08
+        ctx.strokeStyle = `rgba(192, 132, 252, ${intensity})`
+        ctx.lineWidth = 1.5
+        ctx.stroke()
       }
 
-      ctx.globalAlpha = 1
-      t += 0.006
+      t += 0.008
       raf = requestAnimationFrame(draw)
     }
 
