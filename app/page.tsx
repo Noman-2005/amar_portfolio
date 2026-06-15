@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { label: 'Skills', href: '#skills' },
   { label: 'Projects', href: '#projects' },
   { label: 'Journey', href: '#journey' },
+  { label: 'Voluntary', href: '#voluntary' },
   { label: 'Resources', href: '#resources' },
   { label: 'Contact', href: '#contact' },
 ]
@@ -123,6 +124,36 @@ const TIMELINE: { title: string; sub: string; status?: string }[] = [
   },
 ]
 
+const VOLUNTARY = [
+  {
+    title: 'Former Cadet Lance Corporal',
+    org: 'Bangladesh National Cadet Corps (BNCC)',
+    desc: 'Served as a Cadet Lance Corporal, developing leadership, discipline, and teamwork skills.',
+    notable: "Participated in BANGLADESH AIR FORCE ANNUAL WINTER EXERCISE 'WINTEX-2021'",
+    image: '/bncc.jpg',
+    accent: 'var(--violet)',
+    emoji: '🪖',
+  },
+  {
+    title: 'Lifelong Blood Donor',
+    org: 'Quantum Foundation',
+    desc: 'Committed lifelong blood donor contributing to save lives through one of Bangladesh\'s leading welfare organizations.',
+    notable: '',
+    image: '/certificate.jpg',
+    accent: 'var(--teal)',
+    emoji: '🩸',
+  },
+  {
+    title: 'Blood Donor',
+    org: 'Bangladesh Thalassemia Foundation',
+    desc: 'Active blood donor supporting thalassemia patients across Bangladesh.',
+    notable: '',
+    image: '',
+    accent: 'var(--amber)',
+    emoji: '❤️',
+  },
+]
+
 const RESOURCES = [
   { name: 'United International University', short: 'UIU', emoji: '🏛️', desc: 'My home university — BSc in CSE.', url: 'https://uiu.ac.bd', accent: 'var(--violet)' },
   { name: 'North South University', short: 'NSU', emoji: '🎓', desc: 'Leading private university in Bangladesh.', url: 'https://northsouth.edu', accent: 'var(--teal)' },
@@ -134,7 +165,7 @@ const RESOURCES = [
   { name: 'Dhaka University', short: 'DU', emoji: '🎓', desc: "Bangladesh's oldest and most prestigious public university.", url: 'https://www.du.ac.bd', accent: 'var(--teal)' },
   { name: 'Chittagong University of Engineering & Technology', short: 'CUET', emoji: '🏗️', desc: 'Leading public engineering university in Chattogram.', url: 'https://www.cuet.ac.bd', accent: 'var(--amber)' },
   { name: 'Khulna University of Engineering & Technology', short: 'KUET', emoji: '⚙️', desc: 'Public engineering university based in Khulna.', url: 'https://www.kuet.ac.bd', accent: 'var(--violet)' },
-  { name: 'Bangladesh Military Academy', short: 'BMA', emoji: '🪖', desc: 'Officer training academy of the Bangladesh Army.', url: 'https://bma.gov.bd', accent: 'var(--teal)' },
+  { name: 'ISPR', short: 'ISPR', emoji: '📡', desc: 'Inter-Services Public Relations, Bangladesh Armed Forces.', url: 'https://ispr.gov.bd', accent: 'var(--teal)' },
   { name: 'Islamic University of Madinah', short: 'IUM', emoji: '🕌', desc: 'Major Islamic university in Madinah, Saudi Arabia.', url: 'https://www.iu.edu.sa', accent: 'var(--amber)' },
   { name: 'Umm Al-Qura University', short: 'UQU', emoji: '🕋', desc: 'Public university based in Makkah, Saudi Arabia.', url: 'https://uqu.edu.sa', accent: 'var(--violet)' },
   { name: 'Peking University', short: 'PKU', emoji: '🏯', desc: "One of China's most prestigious research universities.", url: 'https://www.pku.edu.cn', accent: 'var(--teal)' },
@@ -310,12 +341,10 @@ function Hero() {
     <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
       <FlowField />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,7,13,0.2) 0%, rgba(8,7,13,0.55) 60%, var(--bg) 100%)' }} />
-
       <span className="annotation hide-mobile" style={{ top: '18%', left: '6%' }}>&nabla; &times; F</span>
       <span className="annotation hide-mobile" style={{ top: '70%', left: '9%' }}>&part;f / &part;x</span>
       <span className="annotation hide-mobile" style={{ top: '24%', right: '7%' }}>&Sigma; n &rarr; &infin;</span>
       <span className="annotation hide-mobile" style={{ top: '66%', right: '10%' }}>&int;&int; F &middot; dA</span>
-
       <div className="container" style={{ position: 'relative', zIndex: 2, paddingTop: 96, paddingBottom: 64 }}>
         <div className="section-label">Portfolio &mdash; v2026.1</div>
         <h1 className="font-display" style={{ fontSize: 'clamp(2.6rem, 8vw, 5.4rem)', fontWeight: 800, lineHeight: 1.04, marginBottom: 22, maxWidth: 820 }}>
@@ -526,9 +555,73 @@ function Journey() {
   )
 }
 
-function Resources() {
+function Voluntary() {
   return (
-    <section id="resources" style={{ padding: '110px 0' }}>
+    <section id="voluntary" style={{ padding: '110px 0' }}>
+      <div className="container">
+        <div className="section-label">Giving back</div>
+        <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', fontWeight: 800, marginBottom: 48 }}>
+          Voluntary <span className="gradient-text">work</span>
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+          {VOLUNTARY.map(v => (
+            <div key={v.title} className="card" style={{ padding: 28, position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${v.accent}, transparent)` }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: `${v.accent}1a`, border: `1px solid ${v.accent}40`,
+                  fontSize: '1.4rem',
+                }}>
+                  {v.emoji}
+                </div>
+                <div>
+                  <h3 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 2 }}>{v.title}</h3>
+                  <div style={{ fontSize: '0.78rem', color: v.accent }}>{v.org}</div>
+                </div>
+              </div>
+              <p style={{ color: 'var(--ink-dim)', fontSize: '0.85rem', lineHeight: 1.7, marginBottom: v.notable ? 12 : 0 }}>{v.desc}</p>
+              {v.notable && (
+                <div style={{
+                  marginTop: 4,
+                  padding: '8px 12px',
+                  borderRadius: 8,
+                  background: `${v.accent}0f`,
+                  border: `1px solid ${v.accent}30`,
+                  fontSize: '0.78rem',
+                  color: 'var(--ink-dim)',
+                  lineHeight: 1.5,
+                }}>
+                  <span style={{ color: v.accent, fontWeight: 600 }}>Notable: </span>{v.notable}
+                </div>
+              )}
+              {v.image && (
+                <div style={{ marginTop: 16, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}>
+                  <Image
+                    src={v.image}
+                    alt={v.title}
+                    width={600}
+                    height={340}
+                    style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Resources() {
+  const [expanded, setExpanded] = useState(false)
+  const VISIBLE = 6
+  const shown = expanded ? RESOURCES : RESOURCES.slice(0, VISIBLE)
+
+  return (
+    <section id="resources" style={{ padding: '110px 0', background: 'linear-gradient(180deg, transparent, var(--bg-raised) 18%, var(--bg-raised) 82%, transparent)' }}>
       <div className="container">
         <div className="section-label">Reference points</div>
         <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', fontWeight: 800, marginBottom: 12 }}>
@@ -537,30 +630,51 @@ function Resources() {
         <p style={{ color: 'var(--ink-dim)', fontSize: '0.92rem', marginBottom: 48 }}>
           Universities and institutions I respect and reference.
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 18 }}>
-          {RESOURCES.map(r => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
+          {shown.map(r => (
             <a key={r.short} href={r.url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-              <div className="card" style={{ padding: '20px 22px', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+              <div className="card" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{
-                  flexShrink: 0, width: 44, height: 44, borderRadius: 10,
+                  flexShrink: 0, width: 36, height: 36, borderRadius: 8,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: `${r.accent}1a`, border: `1px solid ${r.accent}40`,
-                  fontSize: '1.4rem',
+                  fontSize: '1.1rem',
                 }}>
                   {r.emoji}
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{r.short}</span>
-                    <span style={{ fontSize: '0.7rem', color: r.accent }}>&#8599;</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.82rem' }}>{r.short}</span>
+                    <span style={{ fontSize: '0.65rem', color: r.accent }}>&#8599;</span>
                   </div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--ink-dim)', lineHeight: 1.5 }}>{r.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--ink-faint)', marginTop: 4, lineHeight: 1.4 }}>{r.desc}</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--ink-faint)', lineHeight: 1.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</div>
                 </div>
               </div>
             </a>
           ))}
         </div>
+        {!expanded && RESOURCES.length > VISIBLE && (
+          <div style={{ textAlign: 'center', marginTop: 28 }}>
+            <button
+              onClick={() => setExpanded(true)}
+              className="btn-outline"
+              style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', border: 'none' }}
+            >
+              Show all {RESOURCES.length} institutions ↓
+            </button>
+          </div>
+        )}
+        {expanded && (
+          <div style={{ textAlign: 'center', marginTop: 28 }}>
+            <button
+              onClick={() => setExpanded(false)}
+              className="btn-outline"
+              style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', border: 'none' }}
+            >
+              Show less ↑
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )
@@ -634,6 +748,7 @@ export default function Portfolio() {
       <Skills />
       <Projects />
       <Journey />
+      <Voluntary />
       <Resources />
       <Contact />
       <Footer />
