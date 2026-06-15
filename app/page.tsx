@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { label: 'Projects', href: '#projects' },
   { label: 'Journey', href: '#journey' },
   { label: 'Voluntary', href: '#voluntary' },
+  { label: 'Awards', href: '#awards' },
   { label: 'Resources', href: '#resources' },
   { label: 'Contact', href: '#contact' },
 ]
@@ -69,7 +70,7 @@ const PROJECTS = [
   },
   {
     title: 'Math Visualizer',
-    desc: "An interactive tool to visualize vector fields, line integrals, and multivariable calculus concepts from coursework — the same idea behind this site's hero.",
+    desc: 'An interactive tool to visualize vector fields, line integrals, and multivariable calculus concepts from coursework.',
     tags: ['JavaScript', 'Canvas API', 'Math'],
     emoji: '📐',
     accent: 'var(--teal)',
@@ -137,9 +138,9 @@ const VOLUNTARY = [
   {
     title: 'Lifelong Blood Donor',
     org: 'Quantum Foundation',
-    desc: 'Committed lifelong blood donor contributing to save lives through one of Bangladesh\'s leading welfare organizations.',
+    desc: "Committed lifelong blood donor contributing to save lives through one of Bangladesh's leading welfare organizations.",
     notable: '',
-    image: '/certificate.jpg',
+    image: '',
     accent: 'var(--teal)',
     emoji: '🩸',
   },
@@ -151,6 +152,23 @@ const VOLUNTARY = [
     image: '',
     accent: 'var(--amber)',
     emoji: '❤️',
+  },
+]
+
+const AWARDS = [
+  {
+    title: 'Lifelong Blood Donor Award',
+    org: 'Quantum Foundation',
+    image: '/certificate.jpg',
+    accent: 'var(--teal)',
+    emoji: '🩸',
+  },
+  {
+    title: 'Academic Excellence Award',
+    org: 'United International University',
+    image: '/award.jpg',
+    accent: 'var(--violet)',
+    emoji: '🏆',
   },
 ]
 
@@ -177,6 +195,7 @@ const RESOURCES = [
 ]
 
 const ROLES = ['Developer', 'Builder', 'Problem Solver', 'Hackathon Winner']
+
 function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -278,18 +297,13 @@ function Navbar() {
   }, [])
 
   return (
-    <header
-      style={{
-        position: 'fixed',
-        top: 0, left: 0, right: 0,
-        zIndex: 100,
-        padding: '0 24px',
-        transition: 'all 0.3s ease',
-        background: scrolled ? 'rgba(8,7,13,0.78)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(14px)' : 'none',
-        borderBottom: scrolled ? '1px solid var(--line)' : '1px solid transparent',
-      }}
-    >
+    <header style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      padding: '0 24px', transition: 'all 0.3s ease',
+      background: scrolled ? 'rgba(8,7,13,0.78)' : 'transparent',
+      backdropFilter: scrolled ? 'blur(14px)' : 'none',
+      borderBottom: scrolled ? '1px solid var(--line)' : '1px solid transparent',
+    }}>
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
         <a href="#" className="font-display" style={{ fontWeight: 800, fontSize: '1.15rem', textDecoration: 'none', color: 'var(--ink)' }}>
           N<span style={{ color: 'var(--teal)' }}>(t)</span>
@@ -389,25 +403,27 @@ function PhotoFrame() {
   }, [])
 
   return (
-    <div className="avatar-ring" style={{ width: 220, height: 220 }}>
-      <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: 'var(--bg-raised)', position: 'relative' }}>
-        {PHOTOS.map((src, i) => (
-          <Image
-            key={src}
-            src={src}
-            alt="Shibli Noman Arnob"
-            width={220}
-            height={220}
-            style={{
-              position: 'absolute', inset: 0,
-              width: '100%', height: '100%',
-              objectFit: 'cover',
-              opacity: i === index ? 1 : 0,
-              transition: 'opacity 0.9s ease',
-            }}
-            priority={i === 0}
-          />
-        ))}
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <div className="avatar-ring" style={{ width: 220, height: 220 }}>
+        <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: 'var(--bg-raised)', position: 'relative' }}>
+          {PHOTOS.map((src, i) => (
+            <Image
+              key={src}
+              src={src}
+              alt="Shibli Noman Arnob"
+              width={220}
+              height={220}
+              style={{
+                position: 'absolute', inset: 0,
+                width: '100%', height: '100%',
+                objectFit: 'cover',
+                opacity: i === index ? 1 : 0,
+                transition: 'opacity 0.9s ease',
+              }}
+              priority={i === 0}
+            />
+          ))}
+        </div>
       </div>
       {PHOTOS.length > 1 && (
         <div style={{ position: 'absolute', bottom: -22, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
@@ -537,11 +553,9 @@ function Journey() {
                 <p style={{ color: 'var(--ink-dim)', fontSize: '0.85rem', lineHeight: 1.65 }}>{item.sub}</p>
                 {item.status && (
                   <p style={{
-                    marginTop: 8,
-                    fontSize: '0.72rem',
+                    marginTop: 8, fontSize: '0.72rem',
                     color: item.status === 'Ongoing' ? 'var(--amber)' : 'var(--teal)',
-                    fontFamily: 'var(--font-mono)',
-                    letterSpacing: '0.04em',
+                    fontFamily: 'var(--font-mono)', letterSpacing: '0.04em',
                   }}>
                     Status: {item.status}
                   </p>
@@ -584,29 +598,57 @@ function Voluntary() {
               <p style={{ color: 'var(--ink-dim)', fontSize: '0.85rem', lineHeight: 1.7, marginBottom: v.notable ? 12 : 0 }}>{v.desc}</p>
               {v.notable && (
                 <div style={{
-                  marginTop: 4,
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  background: `${v.accent}0f`,
-                  border: `1px solid ${v.accent}30`,
-                  fontSize: '0.78rem',
-                  color: 'var(--ink-dim)',
-                  lineHeight: 1.5,
+                  marginTop: 4, padding: '8px 12px', borderRadius: 8,
+                  background: `${v.accent}0f`, border: `1px solid ${v.accent}30`,
+                  fontSize: '0.78rem', color: 'var(--ink-dim)', lineHeight: 1.5,
                 }}>
                   <span style={{ color: v.accent, fontWeight: 600 }}>Notable: </span>{v.notable}
                 </div>
               )}
               {v.image && (
                 <div style={{ marginTop: 16, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}>
-                  <Image
-                    src={v.image}
-                    alt={v.title}
-                    width={600}
-                    height={340}
-                    style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }}
-                  />
+                  <Image src={v.image} alt={v.title} width={600} height={340}
+                    style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
               )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Awards() {
+  return (
+    <section id="awards" style={{ padding: '110px 0', background: 'linear-gradient(180deg, transparent, var(--bg-raised) 18%, var(--bg-raised) 82%, transparent)' }}>
+      <div className="container">
+        <div className="section-label">Recognition</div>
+        <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', fontWeight: 800, marginBottom: 48 }}>
+          Certificates &amp; <span className="gradient-text">awards</span>
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+          {AWARDS.map(a => (
+            <div key={a.title} className="card" style={{ padding: 28, position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${a.accent}, transparent)` }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: `${a.accent}1a`, border: `1px solid ${a.accent}40`,
+                  fontSize: '1.4rem',
+                }}>
+                  {a.emoji}
+                </div>
+                <div>
+                  <h3 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 2 }}>{a.title}</h3>
+                  <div style={{ fontSize: '0.78rem', color: a.accent }}>{a.org}</div>
+                </div>
+              </div>
+              <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}>
+                <Image src={a.image} alt={a.title} width={600} height={420}
+                  style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+              </div>
             </div>
           ))}
         </div>
@@ -621,7 +663,7 @@ function Resources() {
   const shown = expanded ? RESOURCES : RESOURCES.slice(0, VISIBLE)
 
   return (
-    <section id="resources" style={{ padding: '110px 0', background: 'linear-gradient(180deg, transparent, var(--bg-raised) 18%, var(--bg-raised) 82%, transparent)' }}>
+    <section id="resources" style={{ padding: '110px 0' }}>
       <div className="container">
         <div className="section-label">Reference points</div>
         <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', fontWeight: 800, marginBottom: 12 }}>
@@ -655,22 +697,14 @@ function Resources() {
         </div>
         {!expanded && RESOURCES.length > VISIBLE && (
           <div style={{ textAlign: 'center', marginTop: 28 }}>
-            <button
-              onClick={() => setExpanded(true)}
-              className="btn-outline"
-              style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', border: 'none' }}
-            >
+            <button onClick={() => setExpanded(true)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', border: 'none' }}>
               Show all {RESOURCES.length} institutions ↓
             </button>
           </div>
         )}
         {expanded && (
           <div style={{ textAlign: 'center', marginTop: 28 }}>
-            <button
-              onClick={() => setExpanded(false)}
-              className="btn-outline"
-              style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', border: 'none' }}
-            >
+            <button onClick={() => setExpanded(false)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', border: 'none' }}>
               Show less ↑
             </button>
           </div>
@@ -749,6 +783,7 @@ export default function Portfolio() {
       <Projects />
       <Journey />
       <Voluntary />
+      <Awards />
       <Resources />
       <Contact />
       <Footer />
