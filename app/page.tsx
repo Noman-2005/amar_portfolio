@@ -275,6 +275,88 @@ function FlowField() {
         ctx.restore()
       }
 
+      // ── WAVE INTERFERENCE LAYER ────────────────────────
+      const waves = [
+        { freqX: 0.008, freqY: 0.012, phaseX: t * 0.5, phaseY: t * 0.3, amplitude: 30, color: 'rgba(79,227,201,0.15)' },
+        { freqX: 0.015, freqY: 0.009, phaseX: t * 0.7, phaseY: t * 0.4, amplitude: 25, color: 'rgba(124,111,255,0.12)' },
+        { freqX: 0.011, freqY: 0.014, phaseX: t * 0.3, phaseY: t * 0.8, amplitude: 35, color: 'rgba(192,132,252,0.1)' },
+      ]
+
+      // Draw interference grid lines
+      const step = 30
+      ctx.lineWidth = 1.5
+      ctx.globalAlpha = 0.6
+
+      for (let x = 0; x < width; x += step) {
+        ctx.beginPath()
+        let lastY = 0
+        for (let y = 0; y < height; y += 5) {
+          let displacement = 0
+          for (const wave of waves) {
+            displacement += Math.sin(x * wave.freqX + wave.phaseX) * Math.cos(y * wave.freqY + wave.phaseY) * wave.amplitude
+          }
+          const offsetX = x + displacement * 0.3
+          const offsetY = y + displacement * 0.2
+          
+          if (y === 0) {
+            ctx.moveTo(offsetX, offsetY)
+          } else {
+            ctx.lineTo(offsetX, offsetY)
+          }
+          lastY = offsetY
+        }
+        ctx.strokeStyle = `rgba(124,111,255,0.08)`
+        ctx.stroke()
+      }
+
+      for (let y = 0; y < height; y += step) {
+        ctx.beginPath()
+        for (let x = 0; x < width; x += 5) {
+          let displacement = 0
+          for (const wave of waves) {
+            displacement += Math.sin(x * wave.freqX + wave.phaseX) * Math.cos(y * wave.freqY + wave.phaseY) * wave.amplitude
+          }
+          const offsetX = x + displacement * 0.3
+          const offsetY = y + displacement * 0.2
+          
+          if (x === 0) {
+            ctx.moveTo(offsetX, offsetY)
+          } else {
+            ctx.lineTo(offsetX, offsetY)
+          }
+        }
+        ctx.strokeStyle = `rgba(56,189,248,0.08)`
+        ctx.stroke()
+      }
+
+      // ── WAVE PEAKS (glowing nodes at interference maxima) ──
+      const nodeStep = 45
+      for (let x = nodeStep; x < width; x += nodeStep) {
+        for (let y = nodeStep; y < height; y += nodeStep) {
+          let intensity = 0
+          for (const wave of waves) {
+            intensity += Math.sin(x * wave.freqX + wave.phaseX) * Math.cos(y * wave.freqY + wave.phaseY)
+          }
+          intensity = Math.abs(intensity) / waves.length
+          
+          if (intensity > 0.6) {
+            const radius = 2 + intensity * 3
+            const glow = ctx.createRadialGradient(x, y, 0, x, y, radius * 3)
+            glow.addColorStop(0, `rgba(79,227,201,${intensity * 0.4})`)
+            glow.addColorStop(1, 'rgba(79,227,201,0)')
+            ctx.beginPath()
+            ctx.arc(x, y, radius * 3, 0, Math.PI * 2)
+            ctx.fillStyle = glow
+            ctx.fill()
+            
+            ctx.beginPath()
+            ctx.arc(x, y, radius, 0, Math.PI * 2)
+            ctx.fillStyle = `rgba(200,220,255,${intensity * 0.6})`
+            ctx.fill()
+          }
+        }
+      }
+
       // ── TWINKLING STARS LAYER ─────────────────────────
       for (const star of stars) {
         star.phase += star.speed
@@ -311,6 +393,7 @@ function FlowField() {
         }
       }
 
+      ctx.globalAlpha = 1
       t += 0.006
       raf = requestAnimationFrame(draw)
     }
