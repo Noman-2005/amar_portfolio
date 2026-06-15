@@ -413,7 +413,6 @@ function About() {
     <section id="about" style={{ padding: '110px 0', position: 'relative' }}>
       <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 64, alignItems: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
-          <span className="annotation hide-mobile" style={{ top: -28, left: '8%' }}>x, y, z &isin; &#8477;</span>
           <PhotoFrame />
           <div style={{ position: 'absolute', bottom: 6, right: '32%', width: 18, height: 18, borderRadius: '50%', background: 'var(--teal)', border: '3px solid var(--bg)', boxShadow: '0 0 14px rgba(79,227,201,0.7)' }} />
         </div>
