@@ -209,6 +209,7 @@ function FlowField() {
     let height = 0
     let raf = 0
     let t = 0
+    let particles: { x: number; y: number; life: number }[] = []
 
     const resize = () => {
       width = canvas.offsetWidth
@@ -227,74 +228,81 @@ function FlowField() {
 
     if (reduced) return () => resizeObserver.disconnect()
 
+    // Init particles
+    particles = Array.from({ length: 110 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      life: 60 + Math.random() * 180,
+    }))
+
+    const angleAt = (x: number, y: number) => {
+      const nx = x / width - 0.5
+      const ny = y / height - 0.5
+      return Math.sin(nx * 3.2 + t) * 1.6 + Math.cos(ny * 2.4 - t * 0.6) * 1.6
+    }
+
     const draw = () => {
-      // Very subtle fade trail for smooth motion
-      ctx.fillStyle = 'rgba(8,7,13,0.05)'
-      ctx.fillRect(0, 0, width, height)
+      // ── AURORA LAYER ──────────────────────────────────
+      const auroraCount = 4
+      for (let i = 0; i < auroraCount; i++) {
+        const offset = (i / auroraCount) * Math.PI * 2
+        const cx = width * (0.2 + 0.6 * ((Math.sin(t * 0.3 + offset) + 1) / 2))
+        const cy = height * (0.1 + 0.5 * ((Math.sin(t * 0.2 + offset * 1.3) + 1) / 2))
+        const rx = width * (0.28 + 0.1 * Math.sin(t * 0.4 + offset))
+        const ry = height * (0.14 + 0.06 * Math.cos(t * 0.35 + offset))
 
-      const centerX = width / 2
-      const centerY = height / 2
+        const colorSets = [
+          'rgba(79,227,201,0.06)',
+          'rgba(124,111,255,0.05)',
+          'rgba(192,132,252,0.045)',
+          'rgba(56,189,248,0.045)',
+        ]
 
-      // ── AURORA (very subtle background) ───────────────
-      for (let i = 0; i < 3; i++) {
-        const offset = i * Math.PI * 2 / 3
-        const cx = width * (0.3 + 0.4 * Math.sin(t * 0.2 + offset))
-        const cy = height * (0.3 + 0.4 * Math.cos(t * 0.15 + offset))
-        const radius = width * 0.4
-
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius)
-        grad.addColorStop(0, 'rgba(79, 227, 201, 0.03)')
-        grad.addColorStop(0.5, 'rgba(124, 111, 255, 0.02)')
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx)
+        grad.addColorStop(0, colorSets[i])
+        grad.addColorStop(0.5, colorSets[i])
         grad.addColorStop(1, 'rgba(8,7,13,0)')
 
+        ctx.save()
+        ctx.scale(1, ry / rx)
         ctx.beginPath()
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+        ctx.arc(cx, cy * (rx / ry), rx, 0, Math.PI * 2)
         ctx.fillStyle = grad
         ctx.fill()
+        ctx.restore()
       }
 
-      // ── SINGLE GLOWING ORB ────────────────────────────
-      const orbX = centerX + Math.sin(t * 0.2) * width * 0.1
-      const orbY = centerY + Math.cos(t * 0.17) * height * 0.08
-      const orbRadius = Math.min(width, height) * 0.12
-      const pulse = 0.95 + Math.sin(t * 1.2) * 0.03
+      // ── PARTICLE TRAIL FLOW FIELD ─────────────────────
+      ctx.fillStyle = 'rgba(8,7,13,0.06)'
+      ctx.fillRect(0, 0, width, height)
 
-      // Massive outer glow
-      const outerGlow = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, orbRadius * 2.5)
-      outerGlow.addColorStop(0, 'rgba(200, 210, 255, 0)')
-      outerGlow.addColorStop(0.3, 'rgba(150, 160, 255, 0.03)')
-      outerGlow.addColorStop(0.7, 'rgba(100, 120, 255, 0.02)')
-      outerGlow.addColorStop(1, 'rgba(8,7,13,0)')
-      
-      ctx.beginPath()
-      ctx.arc(orbX, orbY, orbRadius * 2.5, 0, Math.PI * 2)
-      ctx.fillStyle = outerGlow
-      ctx.fill()
+      for (const p of particles) {
+        const angle = angleAt(p.x, p.y)
+        const nx = p.x + Math.cos(angle) * 1.1
+        const ny = p.y + Math.sin(angle) * 1.1
 
-      // Soft glow
-      const softGlow = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, orbRadius * 1.2)
-      softGlow.addColorStop(0, 'rgba(220, 230, 255, 0.08)')
-      softGlow.addColorStop(0.5, 'rgba(180, 190, 255, 0.04)')
-      softGlow.addColorStop(1, 'rgba(100, 120, 255, 0)')
-      
-      ctx.beginPath()
-      ctx.arc(orbX, orbY, orbRadius * 1.2, 0, Math.PI * 2)
-      ctx.fillStyle = softGlow
-      ctx.fill()
+        const grad = ctx.createLinearGradient(p.x, p.y, nx, ny)
+        grad.addColorStop(0, 'rgba(140,123,255,0.0)')
+        grad.addColorStop(1, 'rgba(79,227,201,0.35)')
+        ctx.strokeStyle = grad
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(p.x, p.y)
+        ctx.lineTo(nx, ny)
+        ctx.stroke()
 
-      // Core orb (barely visible, elegant)
-      const coreGrad = ctx.createRadialGradient(orbX - orbRadius*0.2, orbY - orbRadius*0.2, 0, orbX, orbY, orbRadius * pulse)
-      coreGrad.addColorStop(0, 'rgba(255, 255, 255, 0.12)')
-      coreGrad.addColorStop(0.4, 'rgba(200, 210, 255, 0.06)')
-      coreGrad.addColorStop(0.7, 'rgba(150, 160, 255, 0.02)')
-      coreGrad.addColorStop(1, 'rgba(100, 120, 255, 0)')
-      
-      ctx.beginPath()
-      ctx.arc(orbX, orbY, orbRadius * pulse, 0, Math.PI * 2)
-      ctx.fillStyle = coreGrad
-      ctx.fill()
+        p.x = nx
+        p.y = ny
+        p.life -= 1
 
-      t += 0.008
+        if (p.life <= 0 || p.x < 0 || p.x > width || p.y < 0 || p.y > height) {
+          p.x = Math.random() * width
+          p.y = Math.random() * height
+          p.life = 60 + Math.random() * 180
+        }
+      }
+
+      t += 0.0026
       raf = requestAnimationFrame(draw)
     }
 
