@@ -210,10 +210,8 @@ function FlowField() {
     let raf = 0
     let t = 0
 
-    // Neural network nodes
-    const NODE_COUNT = 38
-    type Node = { x: number; y: number; vx: number; vy: number; radius: number; pulse: number; pulseSpeed: number }
-    let nodes: Node[] = []
+    type Star = { x: number; y: number; radius: number; alpha: number; speed: number; phase: number }
+    let stars: Star[] = []
 
     const resize = () => {
       width = canvas.offsetWidth
@@ -232,22 +230,19 @@ function FlowField() {
 
     if (reduced) return () => resizeObserver.disconnect()
 
-    // Init nodes
-    nodes = Array.from({ length: NODE_COUNT }, () => ({
+    // Init stars
+    stars = Array.from({ length: 160 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      radius: 1.5 + Math.random() * 2,
-      pulse: Math.random() * Math.PI * 2,
-      pulseSpeed: 0.02 + Math.random() * 0.03,
+      radius: 0.3 + Math.random() * 1.4,
+      alpha: Math.random(),
+      speed: 0.004 + Math.random() * 0.012,
+      phase: Math.random() * Math.PI * 2,
     }))
 
-    const CONNECTION_DIST = 180
-
     const draw = () => {
-      // Fade trail — aurora feel
-      ctx.fillStyle = 'rgba(8,7,13,0.13)'
+      // Fade trail
+      ctx.fillStyle = 'rgba(8,7,13,0.18)'
       ctx.fillRect(0, 0, width, height)
 
       // ── AURORA LAYER ──────────────────────────────────
@@ -256,20 +251,20 @@ function FlowField() {
         const offset = (i / auroraCount) * Math.PI * 2
         const cx = width * (0.2 + 0.6 * ((Math.sin(t * 0.3 + offset) + 1) / 2))
         const cy = height * (0.1 + 0.5 * ((Math.sin(t * 0.2 + offset * 1.3) + 1) / 2))
-        const rx = width * (0.25 + 0.1 * Math.sin(t * 0.4 + offset))
-        const ry = height * (0.12 + 0.06 * Math.cos(t * 0.35 + offset))
+        const rx = width * (0.28 + 0.1 * Math.sin(t * 0.4 + offset))
+        const ry = height * (0.14 + 0.06 * Math.cos(t * 0.35 + offset))
 
-        const colors = [
-          ['rgba(79,227,201,0)', 'rgba(79,227,201,0.07)', 'rgba(79,227,201,0)'],
-          ['rgba(124,111,255,0)', 'rgba(124,111,255,0.06)', 'rgba(124,111,255,0)'],
-          ['rgba(192,132,252,0)', 'rgba(192,132,252,0.05)', 'rgba(192,132,252,0)'],
-          ['rgba(56,189,248,0)', 'rgba(56,189,248,0.05)', 'rgba(56,189,248,0)'],
+        const colorSets = [
+          'rgba(79,227,201,0.07)',
+          'rgba(124,111,255,0.06)',
+          'rgba(192,132,252,0.055)',
+          'rgba(56,189,248,0.055)',
         ]
 
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx)
-        grad.addColorStop(0, colors[i][1])
-        grad.addColorStop(0.5, colors[i][1])
-        grad.addColorStop(1, colors[i][2])
+        grad.addColorStop(0, colorSets[i])
+        grad.addColorStop(0.5, colorSets[i])
+        grad.addColorStop(1, 'rgba(8,7,13,0)')
 
         ctx.save()
         ctx.scale(1, ry / rx)
@@ -280,72 +275,43 @@ function FlowField() {
         ctx.restore()
       }
 
-      // ── NEURAL NETWORK LAYER ──────────────────────────
-      // Draw connections
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x
-          const dy = nodes[i].y - nodes[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
+      // ── TWINKLING STARS LAYER ─────────────────────────
+      for (const star of stars) {
+        star.phase += star.speed
+        star.alpha = 0.15 + 0.85 * ((Math.sin(star.phase) + 1) / 2)
 
-          if (dist < CONNECTION_DIST) {
-            const alpha = (1 - dist / CONNECTION_DIST) * 0.35
-            const pulseAlpha = alpha * (0.6 + 0.4 * Math.sin(nodes[i].pulse + nodes[j].pulse))
-
-            const grad = ctx.createLinearGradient(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y)
-            grad.addColorStop(0, `rgba(124,111,255,${pulseAlpha})`)
-            grad.addColorStop(0.5, `rgba(79,227,201,${pulseAlpha * 1.2})`)
-            grad.addColorStop(1, `rgba(192,132,252,${pulseAlpha})`)
-
-            ctx.beginPath()
-            ctx.moveTo(nodes[i].x, nodes[i].y)
-            ctx.lineTo(nodes[j].x, nodes[j].y)
-            ctx.strokeStyle = grad
-            ctx.lineWidth = 0.7
-            ctx.stroke()
-
-            // Travelling signal dot
-            const progress = (Math.sin(t * 1.5 + i * 0.4 + j * 0.3) + 1) / 2
-            const sx = nodes[i].x + (nodes[j].x - nodes[i].x) * progress
-            const sy = nodes[i].y + (nodes[j].y - nodes[i].y) * progress
-            ctx.beginPath()
-            ctx.arc(sx, sy, 1.2, 0, Math.PI * 2)
-            ctx.fillStyle = `rgba(79,227,201,${pulseAlpha * 2})`
-            ctx.fill()
-          }
-        }
-      }
-
-      // Draw nodes
-      for (const node of nodes) {
-        node.pulse += node.pulseSpeed
-        const glowSize = node.radius * (1.8 + 0.6 * Math.sin(node.pulse))
-
-        // Outer glow
-        const glow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowSize * 5)
-        glow.addColorStop(0, 'rgba(124,111,255,0.3)')
-        glow.addColorStop(1, 'rgba(124,111,255,0)')
+        // Star glow
+        const glow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.radius * 4)
+        glow.addColorStop(0, `rgba(200,210,255,${star.alpha * 0.6})`)
+        glow.addColorStop(1, 'rgba(200,210,255,0)')
         ctx.beginPath()
-        ctx.arc(node.x, node.y, glowSize * 5, 0, Math.PI * 2)
+        ctx.arc(star.x, star.y, star.radius * 4, 0, Math.PI * 2)
         ctx.fillStyle = glow
         ctx.fill()
 
-        // Core dot
+        // Star core
         ctx.beginPath()
-        ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(79,227,201,0.9)`
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(220,230,255,${star.alpha})`
         ctx.fill()
 
-        // Move nodes
-        node.x += node.vx
-        node.y += node.vy
-
-        // Bounce off edges
-        if (node.x < 0 || node.x > width) node.vx *= -1
-        if (node.y < 0 || node.y > height) node.vy *= -1
+        // Cross sparkle on brighter stars
+        if (star.radius > 1.1 && star.alpha > 0.7) {
+          ctx.strokeStyle = `rgba(200,220,255,${star.alpha * 0.4})`
+          ctx.lineWidth = 0.5
+          const len = star.radius * 3.5
+          ctx.beginPath()
+          ctx.moveTo(star.x - len, star.y)
+          ctx.lineTo(star.x + len, star.y)
+          ctx.stroke()
+          ctx.beginPath()
+          ctx.moveTo(star.x, star.y - len)
+          ctx.lineTo(star.x, star.y + len)
+          ctx.stroke()
+        }
       }
 
-      t += 0.008
+      t += 0.006
       raf = requestAnimationFrame(draw)
     }
 
