@@ -196,7 +196,8 @@ const RESOURCES = [
 
 const ROLES = ['Developer', 'Builder', 'Problem Solver', 'Hackathon Winner']
 
-function FlowField() {
+// FLOW FIELD WITH AURORA (for Hero only)
+function FlowFieldWithAurora() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -228,7 +229,6 @@ function FlowField() {
 
     if (reduced) return () => resizeObserver.disconnect()
 
-    // Init particles
     particles = Array.from({ length: 110 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
@@ -242,10 +242,9 @@ function FlowField() {
     }
 
     const draw = () => {
-      // ── AURORA LAYER ──────────────────────────────────
-      const auroraCount = 4
-      for (let i = 0; i < auroraCount; i++) {
-        const offset = (i / auroraCount) * Math.PI * 2
+      // Aurora layer
+      for (let i = 0; i < 4; i++) {
+        const offset = (i / 4) * Math.PI * 2
         const cx = width * (0.2 + 0.6 * ((Math.sin(t * 0.3 + offset) + 1) / 2))
         const cy = height * (0.1 + 0.5 * ((Math.sin(t * 0.2 + offset * 1.3) + 1) / 2))
         const rx = width * (0.28 + 0.1 * Math.sin(t * 0.4 + offset))
@@ -272,7 +271,7 @@ function FlowField() {
         ctx.restore()
       }
 
-      // ── PARTICLE TRAIL FLOW FIELD ─────────────────────
+      // Particle trail layer
       ctx.fillStyle = 'rgba(8,7,13,0.06)'
       ctx.fillRect(0, 0, width, height)
 
@@ -325,6 +324,111 @@ function FlowField() {
         height: '100%',
         display: 'block',
         pointerEvents: 'none',
+      }}
+    />
+  )
+}
+
+// FLOW FIELD WITH PARTICLE TRAIL ONLY (for rest of portfolio)
+function FlowFieldParticleOnly() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas?.getContext('2d')
+    if (!canvas || !ctx) return
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let width = 0
+    let height = 0
+    let raf = 0
+    let t = 0
+    let particles: { x: number; y: number; life: number }[] = []
+
+    const resize = () => {
+      width = canvas.offsetWidth
+      height = canvas.offsetHeight
+      const dpr = window.devicePixelRatio || 1
+      canvas.width = width * dpr
+      canvas.height = height * dpr
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.fillStyle = '#08070d'
+      ctx.fillRect(0, 0, width, height)
+    }
+    resize()
+
+    const resizeObserver = new ResizeObserver(() => resize())
+    resizeObserver.observe(canvas)
+
+    if (reduced) return () => resizeObserver.disconnect()
+
+    particles = Array.from({ length: 110 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      life: 60 + Math.random() * 180,
+    }))
+
+    const angleAt = (x: number, y: number) => {
+      const nx = x / width - 0.5
+      const ny = y / height - 0.5
+      return Math.sin(nx * 3.2 + t) * 1.6 + Math.cos(ny * 2.4 - t * 0.6) * 1.6
+    }
+
+    const draw = () => {
+      ctx.fillStyle = 'rgba(8,7,13,0.06)'
+      ctx.fillRect(0, 0, width, height)
+
+      for (const p of particles) {
+        const angle = angleAt(p.x, p.y)
+        const nx = p.x + Math.cos(angle) * 1.1
+        const ny = p.y + Math.sin(angle) * 1.1
+
+        const grad = ctx.createLinearGradient(p.x, p.y, nx, ny)
+        grad.addColorStop(0, 'rgba(140,123,255,0.0)')
+        grad.addColorStop(1, 'rgba(79,227,201,0.35)')
+        ctx.strokeStyle = grad
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(p.x, p.y)
+        ctx.lineTo(nx, ny)
+        ctx.stroke()
+
+        p.x = nx
+        p.y = ny
+        p.life -= 1
+
+        if (p.life <= 0 || p.x < 0 || p.x > width || p.y < 0 || p.y > height) {
+          p.x = Math.random() * width
+          p.y = Math.random() * height
+          p.life = 60 + Math.random() * 180
+        }
+      }
+
+      t += 0.0026
+      raf = requestAnimationFrame(draw)
+    }
+
+    raf = requestAnimationFrame(draw)
+
+    return () => {
+      resizeObserver.disconnect()
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        display: 'block',
+        pointerEvents: 'none',
+        zIndex: 0,
       }}
     />
   )
@@ -395,7 +499,7 @@ function Hero() {
 
   return (
     <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden', background: 'var(--bg)' }}>
-      <FlowField />
+      <FlowFieldWithAurora />
       <div style={{ position: 'absolute', top: '20%', left: '10%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(124,111,255,0.08), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', bottom: '15%', right: '8%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(79,227,201,0.06), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
       <span className="annotation hide-mobile" style={{ top: '18%', left: '6%' }}>&nabla; &times; F</span>
@@ -818,7 +922,8 @@ function Footer() {
 
 export default function Portfolio() {
   return (
-    <main>
+    <main style={{ position: 'relative' }}>
+      <FlowFieldParticleOnly />
       <Navbar />
       <Hero />
       <About />
