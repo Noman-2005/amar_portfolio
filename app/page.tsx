@@ -210,15 +210,6 @@ function FlowField() {
     let raf = 0
     let t = 0
 
-    type Particle = { 
-      angle: number
-      radius: number
-      size: number
-      speed: number
-      alpha: number
-    }
-    let particles: Particle[] = []
-
     const resize = () => {
       width = canvas.offsetWidth
       height = canvas.offsetHeight
@@ -228,19 +219,6 @@ function FlowField() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.fillStyle = '#08070d'
       ctx.fillRect(0, 0, width, height)
-      
-      // Reinitialize particles on resize
-      const centerX = width / 2
-      const centerY = height / 2
-      const maxRadius = Math.sqrt(centerX * centerX + centerY * centerY)
-      
-      particles = Array.from({ length: 800 }, () => ({
-        angle: Math.random() * Math.PI * 2,
-        radius: Math.random() * maxRadius,
-        size: 0.5 + Math.random() * 2.5,
-        speed: 0.002 + Math.random() * 0.008,
-        alpha: 0.3 + Math.random() * 0.7,
-      }))
     }
     resize()
 
@@ -250,13 +228,12 @@ function FlowField() {
     if (reduced) return () => resizeObserver.disconnect()
 
     const draw = () => {
-      // Fade trail for motion blur effect
-      ctx.fillStyle = 'rgba(8,7,13,0.15)'
+      // Fade trail
+      ctx.fillStyle = 'rgba(8,7,13,0.12)'
       ctx.fillRect(0, 0, width, height)
 
       const centerX = width / 2
       const centerY = height / 2
-      const maxRadius = Math.sqrt(centerX * centerX + centerY * centerY)
 
       // ── AURORA LAYER ──────────────────────────────────
       const auroraCount = 4
@@ -288,84 +265,156 @@ function FlowField() {
         ctx.restore()
       }
 
-      // ── GALAXY SPIRAL LAYER ───────────────────────────
-      const spiralArms = 3
-      const spiralTightness = 2.5
-      const rotationSpeed = t * 0.3
+      // ── MAGNETIC FIELD LAYER ──────────────────────────
+      // Magnetic poles (positive and negative)
+      const pole1 = { x: centerX - width * 0.25, y: centerY, charge: 1 }
+      const pole2 = { x: centerX + width * 0.25, y: centerY, charge: -1 }
+      const pole3 = { x: centerX, y: centerY - height * 0.2, charge: 0.5 }
       
-      // Update and draw each particle
-      for (const p of particles) {
-        // Update particle position (spiral outward)
-        p.radius += p.speed * 1.5
-        p.angle += 0.02 * (1 - p.radius / maxRadius * 0.5)
-        
-        // Reset particle if it goes beyond max radius
-        if (p.radius > maxRadius) {
-          p.radius = 5
-          p.angle = Math.random() * Math.PI * 2
-          p.alpha = 0.3 + Math.random() * 0.7
-        }
-        
-        // Calculate spiral arm offset
-        const armAngle = (p.angle * spiralArms) % (Math.PI * 2)
-        const armOffset = Math.sin(armAngle * spiralArms) * 0.3
-        const finalAngle = p.angle + armOffset + rotationSpeed
-        
-        // Calculate position
-        const x = centerX + Math.cos(finalAngle) * p.radius
-        const y = centerY + Math.sin(finalAngle) * p.radius
-        
-        // Skip if outside canvas bounds
-        if (x < 0 || x > width || y < 0 || y > height) continue
-        
-        // Color based on radius and angle
-        const colorMix = (p.radius / maxRadius + Math.sin(finalAngle * 2)) / 2
-        let r, g, b
-        
-        if (colorMix < 0.5) {
-          // Blue to purple
-          const mix = colorMix * 2
-          r = 80 + mix * 40
-          g = 70 + mix * 30
-          b = 180 + mix * 75
-        } else {
-          // Purple to cyan
-          const mix = (colorMix - 0.5) * 2
-          r = 120 - mix * 40
-          g = 100 + mix * 127
-          b = 255 - mix * 50
-        }
-        
-        // Fade particles at edges
-        const edgeFade = Math.min(1, p.radius / 100) * Math.max(0, 1 - p.radius / maxRadius)
-        const alpha = p.alpha * (0.3 + edgeFade * 0.7)
-        
-        // Draw particle glow
-        const glow = ctx.createRadialGradient(x, y, 0, x, y, p.size * 2.5)
-        glow.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha * 0.8})`)
-        glow.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`)
+      // Draw magnetic field lines
+      const lineCount = 16
+      const steps = 200
+      
+      for (let i = 0; i < lineCount; i++) {
+        // Start points around the positive pole
+        const startAngle = (i / lineCount) * Math.PI * 2 + t * 0.5
+        const startRadius = 15
+        let x = pole1.x + Math.cos(startAngle) * startRadius
+        let y = pole1.y + Math.sin(startAngle) * startRadius
         
         ctx.beginPath()
-        ctx.arc(x, y, p.size * 2.5, 0, Math.PI * 2)
+        ctx.moveTo(x, y)
+        
+        // Trace field line
+        for (let step = 0; step < steps; step++) {
+          // Calculate magnetic field at current point
+          let fx = 0, fy = 0
+          
+          // Contribution from pole1 (positive)
+          const dx1 = x - pole1.x
+          const dy1 = y - pole1.y
+          const r1_sq = dx1 * dx1 + dy1 * dy1
+          const r1 = Math.sqrt(r1_sq)
+          const strength1 = pole1.charge / (r1_sq + 50)
+          fx += dx1 / r1 * strength1
+          fy += dy1 / r1 * strength1
+          
+          // Contribution from pole2 (negative)
+          const dx2 = x - pole2.x
+          const dy2 = y - pole2.y
+          const r2_sq = dx2 * dx2 + dy2 * dy2
+          const r2 = Math.sqrt(r2_sq)
+          const strength2 = pole2.charge / (r2_sq + 50)
+          fx += dx2 / r2 * strength2
+          fy += dy2 / r2 * strength2
+          
+          // Contribution from pole3
+          const dx3 = x - pole3.x
+          const dy3 = y - pole3.y
+          const r3_sq = dx3 * dx3 + dy3 * dy3
+          const r3 = Math.sqrt(r3_sq)
+          const strength3 = pole3.charge / (r3_sq + 50)
+          fx += dx3 / r3 * strength3
+          fy += dy3 / r3 * strength3
+          
+          // Normalize and step
+          const len = Math.sqrt(fx * fx + fy * fy)
+          if (len < 0.001) break
+          
+          const stepSize = 3
+          x += (fx / len) * stepSize
+          y += (fy / len) * stepSize
+          
+          // Stop if out of bounds or near poles
+          if (x < 0 || x > width || y < 0 || y > height) break
+          if (Math.hypot(x - pole1.x, y - pole1.y) < 10) break
+          if (Math.hypot(x - pole2.x, y - pole2.y) < 10) break
+          
+          ctx.lineTo(x, y)
+        }
+        
+        // Vary colors based on field strength and position
+        const hue = (Math.sin(i * 0.5 + t) + 1) / 2
+        const intensity = 0.12 + Math.sin(t + i) * 0.04
+        ctx.strokeStyle = `rgba(79, 227, 201, ${intensity})`
+        ctx.lineWidth = 1.2
+        ctx.stroke()
+      }
+      
+      // Draw second set of field lines from opposite pole
+      for (let i = 0; i < lineCount; i++) {
+        const startAngle = (i / lineCount) * Math.PI * 2 + t * 0.5
+        const startRadius = 15
+        let x = pole2.x + Math.cos(startAngle) * startRadius
+        let y = pole2.y + Math.sin(startAngle) * startRadius
+        
+        ctx.beginPath()
+        ctx.moveTo(x, y)
+        
+        for (let step = 0; step < steps; step++) {
+          let fx = 0, fy = 0
+          
+          const dx1 = x - pole1.x
+          const dy1 = y - pole1.y
+          const r1_sq = dx1 * dx1 + dy1 * dy1
+          const r1 = Math.sqrt(r1_sq)
+          const strength1 = pole1.charge / (r1_sq + 50)
+          fx += dx1 / r1 * strength1
+          
+          const dx2 = x - pole2.x
+          const dy2 = y - pole2.y
+          const r2_sq = dx2 * dx2 + dy2 * dy2
+          const r2 = Math.sqrt(r2_sq)
+          const strength2 = pole2.charge / (r2_sq + 50)
+          fx += dx2 / r2 * strength2
+          
+          const dx3 = x - pole3.x
+          const dy3 = y - pole3.y
+          const r3_sq = dx3 * dx3 + dy3 * dy3
+          const r3 = Math.sqrt(r3_sq)
+          const strength3 = pole3.charge / (r3_sq + 50)
+          fx += dx3 / r3 * strength3
+          
+          const len = Math.sqrt(fx * fx + fy * fy)
+          if (len < 0.001) break
+          
+          const stepSize = 3
+          x += (fx / len) * stepSize
+          y += (fy / len) * stepSize
+          
+          if (x < 0 || x > width || y < 0 || y > height) break
+          if (Math.hypot(x - pole1.x, y - pole1.y) < 10) break
+          if (Math.hypot(x - pole2.x, y - pole2.y) < 10) break
+          
+          ctx.lineTo(x, y)
+        }
+        
+        const intensity = 0.12 + Math.cos(t + i) * 0.04
+        ctx.strokeStyle = `rgba(124, 111, 255, ${intensity})`
+        ctx.lineWidth = 1.2
+        ctx.stroke()
+      }
+      
+      // Draw magnetic poles (glowing nodes)
+      const poles = [pole1, pole2, pole3]
+      for (const pole of poles) {
+        const polePulse = 0.6 + Math.sin(t * 3) * 0.2
+        const radius = 8 * polePulse
+        const glow = ctx.createRadialGradient(pole.x, pole.y, 0, pole.x, pole.y, radius * 2.5)
+        glow.addColorStop(0, `rgba(192, 132, 252, 0.5)`)
+        glow.addColorStop(0.5, `rgba(124, 111, 255, 0.2)`)
+        glow.addColorStop(1, 'rgba(79, 227, 201, 0)')
+        
+        ctx.beginPath()
+        ctx.arc(pole.x, pole.y, radius * 2.5, 0, Math.PI * 2)
         ctx.fillStyle = glow
         ctx.fill()
         
-        // Draw particle core
         ctx.beginPath()
-        ctx.arc(x, y, p.size * 0.6, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+        ctx.arc(pole.x, pole.y, radius * 0.6, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(200, 220, 255, 0.6)`
         ctx.fill()
       }
-      
-      // Draw central glow
-      const coreGlow = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 40)
-      coreGlow.addColorStop(0, 'rgba(200, 180, 255, 0.4)')
-      coreGlow.addColorStop(0.5, 'rgba(124, 111, 255, 0.15)')
-      coreGlow.addColorStop(1, 'rgba(8, 7, 13, 0)')
-      ctx.beginPath()
-      ctx.arc(centerX, centerY, 80, 0, Math.PI * 2)
-      ctx.fillStyle = coreGlow
-      ctx.fill()
 
       t += 0.008
       raf = requestAnimationFrame(draw)
