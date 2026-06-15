@@ -210,6 +210,20 @@ function FlowField() {
     let raf = 0
     let t = 0
 
+    type Shard = {
+      x: number
+      y: number
+      vx: number
+      vy: number
+      rotation: number
+      rotSpeed: number
+      size: number
+      color: string
+      alpha: number
+      life: number
+    }
+    let shards: Shard[] = []
+
     const resize = () => {
       width = canvas.offsetWidth
       height = canvas.offsetHeight
@@ -227,13 +241,77 @@ function FlowField() {
 
     if (reduced) return () => resizeObserver.disconnect()
 
+    // Initialize shards
+    const initShards = () => {
+      const centerX = width / 2
+      const centerY = height / 2
+      const shardCount = 120
+      const colors = [
+        'rgba(79, 227, 201, ',
+        'rgba(124, 111, 255, ',
+        'rgba(192, 132, 252, ',
+        'rgba(56, 189, 248, ',
+      ]
+      
+      shards = []
+      for (let i = 0; i < shardCount; i++) {
+        const angle = Math.random() * Math.PI * 2
+        const speed = 1 + Math.random() * 4
+        const color = colors[Math.floor(Math.random() * colors.length)]
+        
+        shards.push({
+          x: centerX,
+          y: centerY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          rotation: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.05,
+          size: 3 + Math.random() * 8,
+          color: color,
+          alpha: 0.8 + Math.random() * 0.2,
+          life: 1,
+        })
+      }
+    }
+
+    // Draw a triangle shard
+    const drawShard = (x: number, y: number, size: number, rotation: number, color: string, alpha: number) => {
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(rotation)
+      ctx.beginPath()
+      
+      // Random triangular/polygonal shape
+      const points = 3 + Math.floor(Math.random() * 2)
+      for (let i = 0; i < points; i++) {
+        const angle = (i / points) * Math.PI * 2
+        const radius = size * (0.6 + Math.random() * 0.4)
+        const px = Math.cos(angle) * radius
+        const py = Math.sin(angle) * radius
+        if (i === 0) ctx.moveTo(px, py)
+        else ctx.lineTo(px, py)
+      }
+      ctx.closePath()
+      
+      ctx.fillStyle = color + alpha + ')'
+      ctx.fill()
+      
+      // Add edge glow
+      ctx.strokeStyle = color + (alpha * 0.6) + ')'
+      ctx.lineWidth = 0.5
+      ctx.stroke()
+      
+      ctx.restore()
+    }
+
+    // Trigger shatter effect periodically
+    let shatterTimer = 0
+    const shatterInterval = 180 // frames between shatters
+
     const draw = () => {
       // Fade trail
       ctx.fillStyle = 'rgba(8,7,13,0.12)'
       ctx.fillRect(0, 0, width, height)
-
-      const centerX = width / 2
-      const centerY = height / 2
 
       // ── AURORA LAYER ──────────────────────────────────
       const auroraCount = 4
@@ -265,161 +343,94 @@ function FlowField() {
         ctx.restore()
       }
 
-      // ── MAGNETIC FIELD LAYER ──────────────────────────
-      // Magnetic poles (positive and negative)
-      const pole1 = { x: centerX - width * 0.25, y: centerY, charge: 1 }
-      const pole2 = { x: centerX + width * 0.25, y: centerY, charge: -1 }
-      const pole3 = { x: centerX, y: centerY - height * 0.2, charge: 0.5 }
+      // ── CRYSTAL SHATTER LAYER ─────────────────────────
       
-      // Draw magnetic field lines
-      const lineCount = 16
-      const steps = 200
-      
-      for (let i = 0; i < lineCount; i++) {
-        // Start points around the positive pole
-        const startAngle = (i / lineCount) * Math.PI * 2 + t * 0.5
-        const startRadius = 15
-        let x = pole1.x + Math.cos(startAngle) * startRadius
-        let y = pole1.y + Math.sin(startAngle) * startRadius
+      // Update and draw shards
+      for (let i = shards.length - 1; i >= 0; i--) {
+        const s = shards[i]
         
-        ctx.beginPath()
-        ctx.moveTo(x, y)
+        // Update position
+        s.x += s.vx
+        s.y += s.vy
+        s.rotation += s.rotSpeed
+        s.life -= 0.003
         
-        // Trace field line
-        for (let step = 0; step < steps; step++) {
-          // Calculate magnetic field at current point
-          let fx = 0, fy = 0
-          
-          // Contribution from pole1 (positive)
-          const dx1 = x - pole1.x
-          const dy1 = y - pole1.y
-          const r1_sq = dx1 * dx1 + dy1 * dy1
-          const r1 = Math.sqrt(r1_sq)
-          const strength1 = pole1.charge / (r1_sq + 50)
-          fx += dx1 / r1 * strength1
-          fy += dy1 / r1 * strength1
-          
-          // Contribution from pole2 (negative)
-          const dx2 = x - pole2.x
-          const dy2 = y - pole2.y
-          const r2_sq = dx2 * dx2 + dy2 * dy2
-          const r2 = Math.sqrt(r2_sq)
-          const strength2 = pole2.charge / (r2_sq + 50)
-          fx += dx2 / r2 * strength2
-          fy += dy2 / r2 * strength2
-          
-          // Contribution from pole3
-          const dx3 = x - pole3.x
-          const dy3 = y - pole3.y
-          const r3_sq = dx3 * dx3 + dy3 * dy3
-          const r3 = Math.sqrt(r3_sq)
-          const strength3 = pole3.charge / (r3_sq + 50)
-          fx += dx3 / r3 * strength3
-          fy += dy3 / r3 * strength3
-          
-          // Normalize and step
-          const len = Math.sqrt(fx * fx + fy * fy)
-          if (len < 0.001) break
-          
-          const stepSize = 3
-          x += (fx / len) * stepSize
-          y += (fy / len) * stepSize
-          
-          // Stop if out of bounds or near poles
-          if (x < 0 || x > width || y < 0 || y > height) break
-          if (Math.hypot(x - pole1.x, y - pole1.y) < 10) break
-          if (Math.hypot(x - pole2.x, y - pole2.y) < 10) break
-          
-          ctx.lineTo(x, y)
+        // Apply gravity
+        s.vy += 0.03
+        
+        // Apply drag
+        s.vx *= 0.99
+        s.vy *= 0.99
+        
+        // Remove dead shards or out of bounds
+        if (s.life <= 0 || s.x < -50 || s.x > width + 50 || s.y < -50 || s.y > height + 100) {
+          shards.splice(i, 1)
+          continue
         }
         
-        // Vary colors based on field strength and position
-        const hue = (Math.sin(i * 0.5 + t) + 1) / 2
-        const intensity = 0.12 + Math.sin(t + i) * 0.04
-        ctx.strokeStyle = `rgba(79, 227, 201, ${intensity})`
-        ctx.lineWidth = 1.2
-        ctx.stroke()
+        // Draw the shard
+        const alpha = s.alpha * s.life
+        drawShard(s.x, s.y, s.size * (0.3 + s.life * 0.7), s.rotation, s.color, alpha)
       }
       
-      // Draw second set of field lines from opposite pole
-      for (let i = 0; i < lineCount; i++) {
-        const startAngle = (i / lineCount) * Math.PI * 2 + t * 0.5
-        const startRadius = 15
-        let x = pole2.x + Math.cos(startAngle) * startRadius
-        let y = pole2.y + Math.sin(startAngle) * startRadius
+      // Trigger new shatter periodically
+      shatterTimer++
+      if (shatterTimer >= shatterInterval && shards.length < 80) {
+        shatterTimer = 0
         
-        ctx.beginPath()
-        ctx.moveTo(x, y)
+        // Create explosion at random point or center
+        const centerX = width / 2 + (Math.random() - 0.5) * width * 0.6
+        const centerY = height / 2 + (Math.random() - 0.5) * height * 0.6
+        const shardCount = 25 + Math.floor(Math.random() * 20)
+        const colors = [
+          'rgba(79, 227, 201, ',
+          'rgba(124, 111, 255, ',
+          'rgba(192, 132, 252, ',
+          'rgba(56, 189, 248, ',
+        ]
         
-        for (let step = 0; step < steps; step++) {
-          let fx = 0, fy = 0
+        for (let i = 0; i < shardCount; i++) {
+          const angle = Math.random() * Math.PI * 2
+          const speed = 2 + Math.random() * 5
+          const color = colors[Math.floor(Math.random() * colors.length)]
           
-          const dx1 = x - pole1.x
-          const dy1 = y - pole1.y
-          const r1_sq = dx1 * dx1 + dy1 * dy1
-          const r1 = Math.sqrt(r1_sq)
-          const strength1 = pole1.charge / (r1_sq + 50)
-          fx += dx1 / r1 * strength1
-          
-          const dx2 = x - pole2.x
-          const dy2 = y - pole2.y
-          const r2_sq = dx2 * dx2 + dy2 * dy2
-          const r2 = Math.sqrt(r2_sq)
-          const strength2 = pole2.charge / (r2_sq + 50)
-          fx += dx2 / r2 * strength2
-          
-          const dx3 = x - pole3.x
-          const dy3 = y - pole3.y
-          const r3_sq = dx3 * dx3 + dy3 * dy3
-          const r3 = Math.sqrt(r3_sq)
-          const strength3 = pole3.charge / (r3_sq + 50)
-          fx += dx3 / r3 * strength3
-          
-          const len = Math.sqrt(fx * fx + fy * fy)
-          if (len < 0.001) break
-          
-          const stepSize = 3
-          x += (fx / len) * stepSize
-          y += (fy / len) * stepSize
-          
-          if (x < 0 || x > width || y < 0 || y > height) break
-          if (Math.hypot(x - pole1.x, y - pole1.y) < 10) break
-          if (Math.hypot(x - pole2.x, y - pole2.y) < 10) break
-          
-          ctx.lineTo(x, y)
+          shards.push({
+            x: centerX,
+            y: centerY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            rotation: Math.random() * Math.PI * 2,
+            rotSpeed: (Math.random() - 0.5) * 0.08,
+            size: 2 + Math.random() * 7,
+            color: color,
+            alpha: 0.7 + Math.random() * 0.3,
+            life: 0.8 + Math.random() * 0.4,
+          })
         }
-        
-        const intensity = 0.12 + Math.cos(t + i) * 0.04
-        ctx.strokeStyle = `rgba(124, 111, 255, ${intensity})`
-        ctx.lineWidth = 1.2
-        ctx.stroke()
       }
       
-      // Draw magnetic poles (glowing nodes)
-      const poles = [pole1, pole2, pole3]
-      for (const pole of poles) {
-        const polePulse = 0.6 + Math.sin(t * 3) * 0.2
-        const radius = 8 * polePulse
-        const glow = ctx.createRadialGradient(pole.x, pole.y, 0, pole.x, pole.y, radius * 2.5)
-        glow.addColorStop(0, `rgba(192, 132, 252, 0.5)`)
-        glow.addColorStop(0.5, `rgba(124, 111, 255, 0.2)`)
-        glow.addColorStop(1, 'rgba(79, 227, 201, 0)')
-        
-        ctx.beginPath()
-        ctx.arc(pole.x, pole.y, radius * 2.5, 0, Math.PI * 2)
-        ctx.fillStyle = glow
-        ctx.fill()
-        
-        ctx.beginPath()
-        ctx.arc(pole.x, pole.y, radius * 0.6, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(200, 220, 255, 0.6)`
-        ctx.fill()
-      }
+      // Draw a subtle crystal core that pulses before shattering
+      const centerX = width / 2
+      const centerY = height / 2
+      const pulse = 0.5 + Math.sin(t * 8) * 0.2
+      const coreGlow = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 40 * pulse)
+      coreGlow.addColorStop(0, 'rgba(192, 132, 252, 0.15)')
+      coreGlow.addColorStop(0.5, 'rgba(124, 111, 255, 0.08)')
+      coreGlow.addColorStop(1, 'rgba(8, 7, 13, 0)')
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, 60 * pulse, 0, Math.PI * 2)
+      ctx.fillStyle = coreGlow
+      ctx.fill()
 
       t += 0.008
       raf = requestAnimationFrame(draw)
     }
 
+    // Start with initial shards
+    setTimeout(() => {
+      if (width > 0) initShards()
+    }, 100)
+    
     raf = requestAnimationFrame(draw)
 
     return () => {
