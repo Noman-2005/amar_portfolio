@@ -210,6 +210,15 @@ function FlowField() {
     let raf = 0
     let t = 0
 
+    type Particle = { 
+      angle: number
+      radius: number
+      size: number
+      speed: number
+      alpha: number
+    }
+    let particles: Particle[] = []
+
     const resize = () => {
       width = canvas.offsetWidth
       height = canvas.offsetHeight
@@ -219,6 +228,19 @@ function FlowField() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.fillStyle = '#08070d'
       ctx.fillRect(0, 0, width, height)
+      
+      // Reinitialize particles on resize
+      const centerX = width / 2
+      const centerY = height / 2
+      const maxRadius = Math.sqrt(centerX * centerX + centerY * centerY)
+      
+      particles = Array.from({ length: 800 }, () => ({
+        angle: Math.random() * Math.PI * 2,
+        radius: Math.random() * maxRadius,
+        size: 0.5 + Math.random() * 2.5,
+        speed: 0.002 + Math.random() * 0.008,
+        alpha: 0.3 + Math.random() * 0.7,
+      }))
     }
     resize()
 
@@ -228,9 +250,13 @@ function FlowField() {
     if (reduced) return () => resizeObserver.disconnect()
 
     const draw = () => {
-      // Fade trail
-      ctx.fillStyle = 'rgba(8,7,13,0.12)'
+      // Fade trail for motion blur effect
+      ctx.fillStyle = 'rgba(8,7,13,0.15)'
       ctx.fillRect(0, 0, width, height)
+
+      const centerX = width / 2
+      const centerY = height / 2
+      const maxRadius = Math.sqrt(centerX * centerX + centerY * centerY)
 
       // ── AURORA LAYER ──────────────────────────────────
       const auroraCount = 4
@@ -242,10 +268,10 @@ function FlowField() {
         const ry = height * (0.14 + 0.06 * Math.cos(t * 0.35 + offset))
 
         const colorSets = [
-          'rgba(79,227,201,0.08)',
-          'rgba(124,111,255,0.07)',
-          'rgba(192,132,252,0.06)',
-          'rgba(56,189,248,0.06)',
+          'rgba(79,227,201,0.07)',
+          'rgba(124,111,255,0.06)',
+          'rgba(192,132,252,0.055)',
+          'rgba(56,189,248,0.055)',
         ]
 
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx)
@@ -262,119 +288,84 @@ function FlowField() {
         ctx.restore()
       }
 
-      // ── ELECTRIC GRID LAYER ───────────────────────────
-      const gridSpacing = 35
-      const centerX = width / 2
-      const centerY = height / 2
-      const pulse = Math.sin(t * 1.5) * 0.3 + 0.7
-
-      // Draw vertical grid lines
-      for (let x = 0; x < width + gridSpacing; x += gridSpacing) {
-        const distFromCenter = Math.abs(x - centerX) / centerX
-        const ripple = Math.sin(t * 2 + x * 0.02) * 8 * pulse
+      // ── GALAXY SPIRAL LAYER ───────────────────────────
+      const spiralArms = 3
+      const spiralTightness = 2.5
+      const rotationSpeed = t * 0.3
+      
+      // Update and draw each particle
+      for (const p of particles) {
+        // Update particle position (spiral outward)
+        p.radius += p.speed * 1.5
+        p.angle += 0.02 * (1 - p.radius / maxRadius * 0.5)
+        
+        // Reset particle if it goes beyond max radius
+        if (p.radius > maxRadius) {
+          p.radius = 5
+          p.angle = Math.random() * Math.PI * 2
+          p.alpha = 0.3 + Math.random() * 0.7
+        }
+        
+        // Calculate spiral arm offset
+        const armAngle = (p.angle * spiralArms) % (Math.PI * 2)
+        const armOffset = Math.sin(armAngle * spiralArms) * 0.3
+        const finalAngle = p.angle + armOffset + rotationSpeed
+        
+        // Calculate position
+        const x = centerX + Math.cos(finalAngle) * p.radius
+        const y = centerY + Math.sin(finalAngle) * p.radius
+        
+        // Skip if outside canvas bounds
+        if (x < 0 || x > width || y < 0 || y > height) continue
+        
+        // Color based on radius and angle
+        const colorMix = (p.radius / maxRadius + Math.sin(finalAngle * 2)) / 2
+        let r, g, b
+        
+        if (colorMix < 0.5) {
+          // Blue to purple
+          const mix = colorMix * 2
+          r = 80 + mix * 40
+          g = 70 + mix * 30
+          b = 180 + mix * 75
+        } else {
+          // Purple to cyan
+          const mix = (colorMix - 0.5) * 2
+          r = 120 - mix * 40
+          g = 100 + mix * 127
+          b = 255 - mix * 50
+        }
+        
+        // Fade particles at edges
+        const edgeFade = Math.min(1, p.radius / 100) * Math.max(0, 1 - p.radius / maxRadius)
+        const alpha = p.alpha * (0.3 + edgeFade * 0.7)
+        
+        // Draw particle glow
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, p.size * 2.5)
+        glow.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha * 0.8})`)
+        glow.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`)
         
         ctx.beginPath()
-        for (let y = 0; y < height; y += 8) {
-          const waveOffset = Math.sin(y * 0.02 + t * 3) * 3 * (1 - distFromCenter)
-          const offsetX = x + ripple + waveOffset
-          
-          if (y === 0) {
-            ctx.moveTo(offsetX, y)
-          } else {
-            ctx.lineTo(offsetX, y)
-          }
-        }
+        ctx.arc(x, y, p.size * 2.5, 0, Math.PI * 2)
+        ctx.fillStyle = glow
+        ctx.fill()
         
-        const intensity = 0.1 + (1 - distFromCenter) * 0.12 * pulse
-        ctx.strokeStyle = `rgba(79, 227, 201, ${intensity})`
-        ctx.lineWidth = 1.2
-        ctx.stroke()
-      }
-
-      // Draw horizontal grid lines
-      for (let y = 0; y < height + gridSpacing; y += gridSpacing) {
-        const distFromCenter = Math.abs(y - centerY) / centerY
-        const ripple = Math.sin(t * 2.2 + y * 0.02) * 8 * pulse
-        
+        // Draw particle core
         ctx.beginPath()
-        for (let x = 0; x < width; x += 8) {
-          const waveOffset = Math.sin(x * 0.02 + t * 2.5) * 3 * (1 - distFromCenter)
-          const offsetY = y + ripple + waveOffset
-          
-          if (x === 0) {
-            ctx.moveTo(x, offsetY)
-          } else {
-            ctx.lineTo(x, offsetY)
-          }
-        }
-        
-        const intensity = 0.1 + (1 - distFromCenter) * 0.12 * pulse
-        ctx.strokeStyle = `rgba(124, 111, 255, ${intensity})`
-        ctx.lineWidth = 1.2
-        ctx.stroke()
+        ctx.arc(x, y, p.size * 0.6, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+        ctx.fill()
       }
-
-      // ── GLOWING NODES (intersection points) ───────────
-      for (let x = gridSpacing; x < width; x += gridSpacing) {
-        for (let y = gridSpacing; y < height; y += gridSpacing) {
-          const distFromCenter = Math.sqrt(
-            Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
-          ) / Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2))
-          
-          const nodePulse = (Math.sin(t * 3 + x * 0.02 + y * 0.02) + 1) / 2
-          const intensity = 0.3 * (1 - distFromCenter) * nodePulse * pulse
-          
-          if (intensity > 0.1) {
-            const radius = 2 + nodePulse * 3 * pulse
-            const glow = ctx.createRadialGradient(x, y, 0, x, y, radius * 2.5)
-            glow.addColorStop(0, `rgba(79, 227, 201, ${intensity * 0.7})`)
-            glow.addColorStop(0.5, `rgba(124, 111, 255, ${intensity * 0.3})`)
-            glow.addColorStop(1, 'rgba(79, 227, 201, 0)')
-            
-            ctx.beginPath()
-            ctx.arc(x, y, radius * 2.5, 0, Math.PI * 2)
-            ctx.fillStyle = glow
-            ctx.fill()
-            
-            ctx.beginPath()
-            ctx.arc(x, y, radius * 0.8, 0, Math.PI * 2)
-            ctx.fillStyle = `rgba(200, 220, 255, ${intensity * 0.8})`
-            ctx.fill()
-          }
-        }
-      }
-
-      // ── ELECTRIC ARC PULSES FROM CENTER ───────────────
-      const arcCount = 8
-      for (let i = 0; i < arcCount; i++) {
-        const angle = (i / arcCount) * Math.PI * 2 + t * 2
-        const endX = centerX + Math.cos(angle) * width * 0.6
-        const endY = centerY + Math.sin(angle) * height * 0.6
-        
-        ctx.beginPath()
-        ctx.moveTo(centerX, centerY)
-        
-        for (let j = 0; j <= 20; j++) {
-          const t2 = j / 20
-          const px = centerX + (endX - centerX) * t2
-          const py = centerY + (endY - centerY) * t2
-          
-          const zigzag = Math.sin(j * 0.8 - t * 10) * 5 * (1 - t2)
-          const offsetX = zigzag * Math.cos(angle + 1.5)
-          const offsetY = zigzag * Math.sin(angle + 1.5)
-          
-          if (j === 0) {
-            ctx.moveTo(px + offsetX, py + offsetY)
-          } else {
-            ctx.lineTo(px + offsetX, py + offsetY)
-          }
-        }
-        
-        const intensity = 0.15 + Math.sin(t * 3 + angle) * 0.08
-        ctx.strokeStyle = `rgba(192, 132, 252, ${intensity})`
-        ctx.lineWidth = 1.5
-        ctx.stroke()
-      }
+      
+      // Draw central glow
+      const coreGlow = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 40)
+      coreGlow.addColorStop(0, 'rgba(200, 180, 255, 0.4)')
+      coreGlow.addColorStop(0.5, 'rgba(124, 111, 255, 0.15)')
+      coreGlow.addColorStop(1, 'rgba(8, 7, 13, 0)')
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, 80, 0, Math.PI * 2)
+      ctx.fillStyle = coreGlow
+      ctx.fill()
 
       t += 0.008
       raf = requestAnimationFrame(draw)
