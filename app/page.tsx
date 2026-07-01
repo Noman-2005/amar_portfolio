@@ -36,7 +36,6 @@ const SKILLS = {
     { name: 'HTML / CSS', icon: '🌐' },
   ],
   'AI & Tools': [
-    { name: 'Claude API', icon: '🤖' },
     { name: 'Git & GitHub', icon: '🐙' },
     { name: 'VS Code', icon: '💻' },
     { name: 'Vercel', icon: '🚀' },
@@ -52,8 +51,8 @@ const SKILLS = {
 const PROJECTS = [
   {
     title: 'NomanOS',
-    desc: 'AI-powered personal operating system built for a hackathon — content calendar, trend hunter, and Claude API integrations.',
-    tags: ['Next.js', 'Claude API', 'Vercel'],
+    desc: 'A personal operating system built for a hackathon with smart features for creators.',
+    tags: ['Next.js', 'Vercel'],
     emoji: '🚀',
     accent: 'var(--violet)',
     href: 'https://noman-os.vercel.app',
@@ -70,7 +69,7 @@ const PROJECTS = [
   },
   {
     title: 'Psychological Assessment System',
-    desc: 'An interactive tool to visualize vector fields, line integrals, and multivariable calculus concepts from coursework.',
+    desc: 'A psychological assessment system with interactive tools for mental health evaluation and self-assessment modules.',
     tags: ['JavaScript', 'Canvas API', 'Math'],
     emoji: '📐',
     accent: 'var(--teal)',
@@ -228,7 +227,6 @@ function FlowField() {
 
     if (reduced) return () => resizeObserver.disconnect()
 
-    // Init particles
     particles = Array.from({ length: 110 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
@@ -242,7 +240,6 @@ function FlowField() {
     }
 
     const draw = () => {
-      // ── AURORA LAYER ──────────────────────────────────
       const auroraCount = 4
       for (let i = 0; i < auroraCount; i++) {
         const offset = (i / auroraCount) * Math.PI * 2
@@ -272,7 +269,6 @@ function FlowField() {
         ctx.restore()
       }
 
-      // ── PARTICLE TRAIL FLOW FIELD ─────────────────────
       ctx.fillStyle = 'rgba(8,7,13,0.06)'
       ctx.fillRect(0, 0, width, height)
 
