@@ -51,12 +51,12 @@ const SKILLS = {
 
 const PROJECTS = [
   {
-    title: 'CreatorOS',
-    desc: 'AI-powered social media creator platform built for a hackathon — content calendar, trend hunter, and Claude API integrations.',
+    title: 'NomanOS',
+    desc: 'AI-powered personal operating system built for a hackathon — content calendar, trend hunter, and Claude API integrations.',
     tags: ['Next.js', 'Claude API', 'Vercel'],
     emoji: '🚀',
     accent: 'var(--violet)',
-    href: SOCIALS.github,
+    href: 'https://noman-os.vercel.app',
     featured: true,
   },
   {
@@ -69,12 +69,12 @@ const PROJECTS = [
     featured: false,
   },
   {
-    title: 'Math Visualizer',
+    title: 'Psychological Assessment System',
     desc: 'An interactive tool to visualize vector fields, line integrals, and multivariable calculus concepts from coursework.',
     tags: ['JavaScript', 'Canvas API', 'Math'],
     emoji: '📐',
     accent: 'var(--teal)',
-    href: SOCIALS.github,
+    href: 'https://psychological-assessment-theta.vercel.app/',
     featured: false,
   },
 ]
@@ -567,7 +567,7 @@ function Projects() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 24 }}>
                 {p.tags.map(t => <span key={t} className="tag">{t}</span>)}
               </div>
-              <a href={p.href} target="_blank" rel="noreferrer" className="btn-outline" style={{ fontSize: '0.78rem', padding: '7px 16px' }}>View repo &#8599;</a>
+              <a href={p.href} target="_blank" rel="noreferrer" className="btn-outline" style={{ fontSize: '0.78rem', padding: '7px 16px' }}>View project &#8599;</a>
             </div>
           ))}
         </div>
