@@ -70,8 +70,8 @@ const PROJECTS = [
   {
     title: 'Psychological Assessment System',
     desc: 'A psychological assessment system with interactive tools for mental health evaluation and self-assessment modules.',
-    tags: ['JavaScript', 'Canvas API', 'Math'],
-    emoji: '📐',
+    tags: ['JavaScript', 'Vercel', 'Psychology'],
+    emoji: '🧠',
     accent: 'var(--teal)',
     href: 'https://psychological-assessment-theta.vercel.app/',
     featured: false,
