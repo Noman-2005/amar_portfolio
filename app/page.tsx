@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { label: 'Projects', href: '#projects' },
   { label: 'Journey', href: '#journey' },
   { label: 'Voluntary', href: '#voluntary' },
+  { label: 'Events', href: '#events' },
   { label: 'Awards', href: '#awards' },
   { label: 'Resources', href: '#resources' },
   { label: 'Contact', href: '#contact' },
@@ -35,7 +36,7 @@ const SKILLS = {
     { name: 'Tailwind CSS', icon: '🎨' },
     { name: 'HTML / CSS', icon: '🌐' },
   ],
-  'AI & Tools': [
+  'Tools & Platforms': [
     { name: 'Git & GitHub', icon: '🐙' },
     { name: 'VS Code', icon: '💻' },
     { name: 'Vercel', icon: '🚀' },
@@ -88,6 +89,11 @@ const TIMELINE: { title: string; sub: string; status?: string }[] = [
     sub: 'Core programming fundamentals, syntax, and problem solving across three languages.',
   },
   {
+    title: 'Fundamental Calculus',
+    sub: "Limits, derivatives, integrals, and their applications in real-world problems.",
+    status: 'Completed with GPA 4.00 / 4.00',
+  },
+  {
     title: 'Calculus and Linear Algebra',
     sub: 'Differentiation, integration, matrix operations, and their applications.',
     status: 'Completed with GPA 4.00 / 4.00',
@@ -98,24 +104,19 @@ const TIMELINE: { title: string; sub: string; status?: string }[] = [
     status: 'Completed with GPA 4.00 / 4.00',
   },
   {
+    title: 'Probability and Statistics',
+    sub: 'Descriptive statistics, probability distributions, binomial distribution, poisson distribution, normal distribution, hypothesis testing, and regression analysis.',
+    status: 'Completed with GPA 4.00 / 4.00',
+  },
+  {
     title: 'Discrete Mathematics',
     sub: 'Logic, set theory, combinatorics, graph theory, and proof techniques.',
     status: 'Completed with GPA 3.67 / 4.00',
   },
   {
-    title: 'Object Oriented Programming',
-    sub: 'Abstraction, polymorphism, interfaces, and exception handling applied through design patterns.',
-    status: 'Ongoing',
-  },
-  {
     title: 'Data Structures & Algorithms',
     sub: 'Arrays, linked lists, trees, graphs, sorting and searching — and how to choose between them.',
     status: 'Completed with GPA 4.00 / 4.00',
-  },
-  {
-    title: 'Theory of Computation',
-    sub: 'Automata, formal languages, Turing machines, and computational complexity.',
-    status: 'Ongoing',
   },
   {
     title: 'Digital Logic Design',
@@ -167,7 +168,34 @@ const AWARDS = [
     org: 'BAF Shaheen College Kurmitola',
     image: '/award.jpg',
     accent: 'var(--violet)',
-    emoji: '🏆',
+    emoji: '🏆︎',
+  },
+  {
+    title: 'Build with Gemma @Bangladesh — AI Hackathon',
+    org: 'ML Bangladesh × IEEE UIU Student Branch',
+    image: '/gemma-certificate.jpeg',
+    accent: 'var(--amber)',
+    emoji: '🤖',
+  },
+  {
+    title: 'International Observe the Moon Night 2026',
+    org: 'Observe the Moon Night Coordinating Committee · 19 Sept 2026',
+    image: '/nasa-certificate.jpeg',
+    accent: 'var(--violet)',
+    emoji: '🌖',
+  },
+]
+const EVENTS = [
+  {
+    title: 'Google Product Expert Workshop',
+    org: 'United International University (UIU), Dhaka',
+    date: '10 July 2026',
+    role: 'Participant',
+    desc: 'Selected as one of about 32 participants in the second Google Product Expert workshop in Bangladesh, covering eligibility, the application process, community activities, and how to give technical support to Google users.',
+    source: 'The Daily Ittefaq',
+    href: 'https://www.ittefaq.com.bd/798078/%E0%A6%B0%E0%A6%BE%E0%A6%9C%E0%A6%A7%E0%A6%BE%E0%A6%A8%E0%A7%80%E0%A6%A4%E0%A7%87-%E0%A6%A6%E0%A7%8D%E0%A6%AC%E0%A6%BF%E0%A6%A4%E0%A7%80%E0%A6%AF%E0%A6%BC%E0%A6%AC%E0%A6%BE%E0%A6%B0%E0%A7%87%E0%A6%B0-%E0%A6%AE%E0%A6%A4%E0%A7%8B-%E0%A6%85%E0%A6%A8%E0%A7%81%E0%A6%B7%E0%A7%8D%E0%A6%A0%E0%A6%BF%E0%A6%A4-%E0%A6%B9%E0%A6%B2%E0%A7%8B-%E2%80%98%E0%A6%97%E0%A7%81%E0%A6%97%E0%A6%B2',
+    accent: 'var(--teal)',
+    emoji: '🎤',
   },
 ]
 
@@ -193,7 +221,7 @@ const RESOURCES = [
   { name: 'University of Zurich', short: 'UZH', emoji: '🏔️', desc: "Switzerland's largest university.", url: 'https://www.uzh.ch', accent: 'var(--violet)' },
 ]
 
-const ROLES = ['Developer', 'Builder', 'Problem Solver', 'Hackathon Winner']
+const ROLES = ['Developer', 'Builder', 'Problem Solver', 'Hackathon Participant']
 
 function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -328,31 +356,93 @@ function FlowField() {
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [open, setOpen] = useState(false)
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 32)
-    window.addEventListener('scroll', onScroll)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
+  const solid = scrolled || open
 
   return (
     <header style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
       padding: '0 24px', transition: 'all 0.3s ease',
-      background: scrolled ? 'rgba(8,7,13,0.78)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(14px)' : 'none',
-      borderBottom: scrolled ? '1px solid var(--line)' : '1px solid transparent',
+      background: solid ? 'rgba(8,7,13,0.92)' : 'transparent',
+      backdropFilter: solid ? 'blur(14px)' : 'none',
+      borderBottom: solid ? '1px solid var(--line)' : '1px solid transparent',
     }}>
+      <style>{`
+        .mobile-toggle { display: none; }
+        .mobile-panel { display: none; }
+        @media (max-width: 820px) {
+          .desktop-nav { display: none !important; }
+          .mobile-toggle { display: flex; }
+          .mobile-panel.open { display: flex; }
+          .header-cta { display: none !important; }
+        }
+      `}</style>
+
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
         <a href="#" className="font-display" style={{ fontWeight: 800, fontSize: '1.15rem', textDecoration: 'none', color: 'var(--ink)' }}>
           N<span style={{ color: 'var(--teal)' }}>(t)</span>
         </a>
+
         <nav className="desktop-nav" style={{ display: 'flex', gap: 30 }}>
           {NAV_LINKS.map(l => (
             <a key={l.label} href={l.href} className="nav-link">{l.label}</a>
           ))}
         </nav>
-        <a href="#contact" className="btn-primary" style={{ fontSize: '0.78rem', padding: '9px 20px' }}>Let&rsquo;s talk</a>
+
+        <a href="#contact" className="btn-primary header-cta" style={{ fontSize: '0.78rem', padding: '9px 20px' }}>Let&rsquo;s talk</a>
+
+        <button
+          type="button"
+          className="mobile-toggle"
+          aria-label={open ? 'Close Menu' : 'Open Menu'}
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          onClick={() => setOpen(o => !o)}
+          style={{
+            width: 42, height: 42, alignItems: 'center', justifyContent: 'center',
+            background: 'transparent', border: '1px solid var(--line-strong)',
+            borderRadius: 10, color: 'var(--ink)', fontSize: '1.2rem', cursor: 'pointer',
+          }}
+        >
+          {open ? '✕' : '☰'}
+        </button>
       </div>
+
+      <nav
+        id="mobile-menu"
+        className={`mobile-panel${open ? ' open' : ''}`}
+        style={{ flexDirection: 'column', gap: 4, padding: '8px 0 24px', maxHeight: 'calc(100vh - 68px)', overflowY: 'auto' }}
+      >
+        {NAV_LINKS.map(l => (
+          <a
+            key={l.label}
+            href={l.href}
+            className="nav-link"
+            onClick={() => setOpen(false)}
+            style={{ padding: '12px 4px', fontSize: '1rem' }}
+          >
+            {l.label}
+          </a>
+        ))}
+        <a href="#contact" className="btn-primary" onClick={() => setOpen(false)}
+           style={{ marginTop: 12, justifyContent: 'center' }}>
+          Let&rsquo;s talk
+        </a>
+      </nav>
     </header>
   )
 }
@@ -417,7 +507,7 @@ function Hero() {
         </div>
         <div style={{ display: 'flex', gap: 48, flexWrap: 'wrap' }}>
           {[
-            { value: '10+', label: 'Projects built' },
+            { value: `${PROJECTS.length}`, label: 'Featured projects' },
             { value: '2+', label: 'Hackathons' },
             { value: '\u221E', label: 'Curiosity' },
           ].map(s => (
@@ -449,12 +539,15 @@ function PhotoFrame() {
             <Image
               key={src}
               src={src}
-              alt="Shibli Noman Arnob"
+              alt={i === index ? `Shibli Noman Arnob, photo ${i + 1}` : ''}
+              aria-hidden={i !== index}
               width={220}
               height={220}
               style={{
-                position: 'absolute', inset: 0,
-                width: '100%', height: '100%',
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
                 objectFit: 'cover',
                 opacity: i === index ? 1 : 0,
                 transition: 'opacity 0.9s ease',
@@ -465,9 +558,21 @@ function PhotoFrame() {
         </div>
       </div>
       {PHOTOS.length > 1 && (
-        <div style={{ position: 'absolute', bottom: -22, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
+        <div
+          aria-hidden="true"
+          style={{ position: 'absolute', bottom: -22, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}
+        >
           {PHOTOS.map((_, i) => (
-            <span key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: i === index ? 'var(--teal)' : 'var(--line-strong)', transition: 'background 0.3s ease' }} />
+            <span
+              key={i}
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: i === index ? 'var(--teal)' : 'var(--line-strong)',
+                transition: 'background 0.3s ease',
+              }}
+            />
           ))}
         </div>
       )}
@@ -593,7 +698,7 @@ function Journey() {
                 {item.status && (
                   <p style={{
                     marginTop: 8, fontSize: '0.72rem',
-                    color: item.status === 'Ongoing' ? 'var(--amber)' : 'var(--teal)',
+                    color: 'var(--teal)',
                     fontFamily: 'var(--font-mono)', letterSpacing: '0.04em',
                   }}>
                     Status: {item.status}
@@ -657,6 +762,55 @@ function Voluntary() {
     </section>
   )
 }
+function Events() {
+  return (
+    <section id="events" style={{ padding: '110px 0' }}>
+      <div className="container">
+        <div className="section-label">Where I&rsquo;ve been</div>
+        <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)', fontWeight: 800, marginBottom: 48 }}>
+          Events &amp; <span className="gradient-text">workshops</span>
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+          {EVENTS.map(e => (
+            <a
+              key={e.title}
+              href={e.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${e.title}, read the ${e.source} article (opens in a new tab)`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <div className="card" style={{ padding: 28, position: 'relative', overflow: 'hidden', height: '100%' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${e.accent}, transparent)` }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: `${e.accent}1a`, border: `1px solid ${e.accent}40`,
+                    fontSize: '1.4rem',
+                  }}>
+                    {e.emoji}
+                  </div>
+                  <div>
+                    <h3 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 2 }}>{e.title}</h3>
+                    <div style={{ fontSize: '0.78rem', color: e.accent }}>{e.org}</div>
+                  </div>
+                </div>
+                <div className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--ink-faint)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>
+                  {e.date} &middot; {e.role}
+                </div>
+                <p style={{ color: 'var(--ink-dim)', fontSize: '0.85rem', lineHeight: 1.7, marginBottom: 18 }}>{e.desc}</p>
+                <span className="btn-outline" style={{ fontSize: '0.78rem', padding: '7px 16px', display: 'inline-block' }}>
+                  Read in {e.source} &#8599;
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
 
 function Awards() {
   return (
@@ -712,42 +866,59 @@ function Resources() {
           Universities and institutions I respect and reference.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
-          {shown.map(r => (
-            <a key={r.short} href={r.url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-              <div className="card" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                  flexShrink: 0, width: 36, height: 36, borderRadius: 8,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: `${r.accent}1a`, border: `1px solid ${r.accent}40`,
-                  fontSize: '1.1rem',
-                }}>
-                  {r.emoji}
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.82rem' }}>{r.short}</span>
-                    <span style={{ fontSize: '0.65rem', color: r.accent }}>&#8599;</span>
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--ink-faint)', lineHeight: 1.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</div>
-                </div>
-              </div>
-            </a>
-          ))}
+        {shown.map(r => (
+  <a
+    key={r.short}
+    href={r.url}
+    target="_blank"
+    rel="noreferrer"
+    aria-label={`${r.name} (opens in a new tab)`}
+    style={{ textDecoration: 'none' }}
+  >
+    <div className="card" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{
+        flexShrink: 0, width: 36, height: 36, borderRadius: 8,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: `${r.accent}1a`, border: `1px solid ${r.accent}40`,
+        fontSize: '1.1rem',
+      }}>
+        {r.emoji}
+      </div>
+      <div style={{ minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontWeight: 700, fontSize: '0.82rem' }}>{r.short}</span>
+          <span style={{ fontSize: '0.65rem', color: r.accent }}>&#8599;</span>
         </div>
-        {!expanded && RESOURCES.length > VISIBLE && (
-          <div style={{ textAlign: 'center', marginTop: 28 }}>
-            <button onClick={() => setExpanded(true)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', border: 'none' }}>
-              Show all {RESOURCES.length} institutions ↓
-            </button>
-          </div>
-        )}
-        {expanded && (
-          <div style={{ textAlign: 'center', marginTop: 28 }}>
-            <button onClick={() => setExpanded(false)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', border: 'none' }}>
-              Show less ↑
-            </button>
-          </div>
-        )}
+        <div style={{ fontSize: '0.72rem', color: 'var(--ink-faint)', lineHeight: 1.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</div>
+      </div>
+    </div>
+  </a>
+))}
+        </div>
+       {!expanded && RESOURCES.length > VISIBLE && (
+  <div style={{ textAlign: 'center', marginTop: 28 }}>
+    <button
+      type="button"
+      onClick={() => setExpanded(true)}
+      className="btn-outline"
+      style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', background: 'transparent', fontFamily: 'inherit' }}
+    >
+      Show all {RESOURCES.length} institutions ↓
+    </button>
+  </div>
+)}
+{expanded && (
+  <div style={{ textAlign: 'center', marginTop: 28 }}>
+    <button
+      type="button"
+      onClick={() => setExpanded(false)}
+      className="btn-outline"
+      style={{ fontSize: '0.8rem', padding: '9px 24px', cursor: 'pointer', background: 'transparent', fontFamily: 'inherit' }}
+    >
+      Show less ↑
+    </button>
+  </div>
+)} 
       </div>
     </section>
   )
@@ -822,6 +993,7 @@ export default function Portfolio() {
       <Projects />
       <Journey />
       <Voluntary />
+      <Events />
       <Awards />
       <Resources />
       <Contact />
