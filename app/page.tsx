@@ -203,6 +203,7 @@ const RESOURCES = [
   { name: 'United International University', short: 'UIU', emoji: '🏛️', desc: 'My home university — BSc in CSE.', url: 'https://uiu.ac.bd', accent: 'var(--violet)' },
   { name: 'North South University', short: 'NSU', emoji: '🎓', desc: 'Leading private university in Bangladesh.', url: 'https://northsouth.edu', accent: 'var(--teal)' },
   { name: 'BRAC University', short: 'BRACU', emoji: '📚', desc: 'Top-ranked private university in Bangladesh.', url: 'https://bracu.ac.bd', accent: 'var(--amber)' },
+  { name: 'National Defence College', short: 'NDC', emoji: '🛡️', desc: "Bangladesh's premier institute for security, strategy and development studies.", url: 'https://ndc.gov.bd/', accent: 'var(--teal)' },
   { name: 'Military Institute of Science and Technology', short: 'MIST', emoji: '⚙️', desc: 'Engineering and technology focused institution.', url: 'https://mist.ac.bd', accent: 'var(--violet)' },
   { name: 'Bangladesh University of Engineering & Technology', short: 'BUET', emoji: '🔬', desc: "Bangladesh's leading engineering university.", url: 'https://buet.ac.bd', accent: 'var(--teal)' },
   { name: 'Armed Forces Medical College', short: 'AFMC', emoji: '🏥', desc: 'Premier medical institution in Bangladesh.', url: 'https://afmc.edu.bd', accent: 'var(--amber)' },
