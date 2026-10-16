@@ -168,7 +168,7 @@ const AWARDS = [
     org: 'BAF Shaheen College Kurmitola',
     image: '/award.jpg',
     accent: 'var(--violet)',
-    emoji: '🏆︎',
+    emoji: '🏆',
   },
   {
     title: 'Build with Gemma @Bangladesh — AI Hackathon',
@@ -183,6 +183,13 @@ const AWARDS = [
     image: '/nasa-certificate.jpeg',
     accent: 'var(--violet)',
     emoji: '🌖',
+  },
+    {
+    title: 'Empowering Youth in Banking — Season 2.0',
+    org: 'Prime Bank · Certificate of Appreciation · 19 July 2026',
+    image: '/prime-bank-certificate.jpeg',
+    accent: 'var(--teal)',
+    emoji: '🏦',
   },
 ]
 const EVENTS = [
@@ -220,9 +227,30 @@ const RESOURCES = [
   { name: 'University of Cambridge', short: 'CAMBRIDGE', emoji: '📖', desc: 'Historic UK university renowned for research.', url: 'https://www.cam.ac.uk', accent: 'var(--teal)' },
   { name: 'Durham University', short: 'DURHAM', emoji: '🏰', desc: 'Leading UK university known for its collegiate system.', url: 'https://www.durham.ac.uk', accent: 'var(--amber)' },
   { name: 'University of Zurich', short: 'UZH', emoji: '🏔️', desc: "Switzerland's largest university.", url: 'https://www.uzh.ch', accent: 'var(--violet)' },
+  { name: 'Quaid-i-Azam University', short: 'QAU', emoji: '🏫', desc: 'Federal public research university in Islamabad, Pakistan.', url: 'https://qau.edu.pk/', accent: 'var(--teal)' },
+  { name: 'Indian Institute of Technology Delhi', short: 'IITD', emoji: '🏫', desc: "One of India's leading engineering and technology institutes.", url: 'https://home.iitd.ac.in/', accent: 'var(--amber)' },
+  { name: 'University of Tehran', short: 'UT', emoji: '🏛️', desc: "One of Iran's oldest and most prominent universities.", url: 'https://en.ut.ac.ir/', accent: 'var(--violet)' },
 ]
 
 const ROLES = ['Developer', 'Builder', 'Problem Solver', 'Hackathon Participant']
+
+const PALETTES = {
+  dark: {
+    bg: '8,7,13',
+    aurora: ['rgba(79,227,201,0.06)', 'rgba(124,111,255,0.05)', 'rgba(192,132,252,0.045)', 'rgba(56,189,248,0.045)'],
+    trailStart: 'rgba(140,123,255,0.0)',
+    trailEnd: 'rgba(79,227,201,0.35)',
+  },
+  light: {
+    bg: '247,246,252',
+    aurora: ['rgba(13,148,136,0.10)', 'rgba(91,75,214,0.09)', 'rgba(168,85,247,0.08)', 'rgba(14,165,233,0.08)'],
+    trailStart: 'rgba(91,75,214,0.0)',
+    trailEnd: 'rgba(13,148,136,0.45)',
+  },
+}
+
+const getTheme = (): 'dark' | 'light' =>
+  document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
 
 function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -233,11 +261,17 @@ function FlowField() {
     if (!canvas || !ctx) return
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let palette = PALETTES[getTheme()]
     let width = 0
     let height = 0
     let raf = 0
     let t = 0
     let particles: { x: number; y: number; life: number }[] = []
+
+    const paintBackground = () => {
+      ctx.fillStyle = `rgb(${palette.bg})`
+      ctx.fillRect(0, 0, width, height)
+    }
 
     const resize = () => {
       width = canvas.offsetWidth
@@ -246,15 +280,26 @@ function FlowField() {
       canvas.width = width * dpr
       canvas.height = height * dpr
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx.fillStyle = '#08070d'
-      ctx.fillRect(0, 0, width, height)
+      paintBackground()
     }
     resize()
 
     const resizeObserver = new ResizeObserver(() => resize())
     resizeObserver.observe(canvas)
 
-    if (reduced) return () => resizeObserver.disconnect()
+    // repaint immediately when the theme is switched
+    const themeObserver = new MutationObserver(() => {
+      palette = PALETTES[getTheme()]
+      paintBackground()
+    })
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+
+    if (reduced) {
+      return () => {
+        resizeObserver.disconnect()
+        themeObserver.disconnect()
+      }
+    }
 
     particles = Array.from({ length: 110 }, () => ({
       x: Math.random() * width,
@@ -277,17 +322,10 @@ function FlowField() {
         const rx = width * (0.28 + 0.1 * Math.sin(t * 0.4 + offset))
         const ry = height * (0.14 + 0.06 * Math.cos(t * 0.35 + offset))
 
-        const colorSets = [
-          'rgba(79,227,201,0.06)',
-          'rgba(124,111,255,0.05)',
-          'rgba(192,132,252,0.045)',
-          'rgba(56,189,248,0.045)',
-        ]
-
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx)
-        grad.addColorStop(0, colorSets[i])
-        grad.addColorStop(0.5, colorSets[i])
-        grad.addColorStop(1, 'rgba(8,7,13,0)')
+        grad.addColorStop(0, palette.aurora[i])
+        grad.addColorStop(0.5, palette.aurora[i])
+        grad.addColorStop(1, `rgba(${palette.bg},0)`)
 
         ctx.save()
         ctx.scale(1, ry / rx)
@@ -298,7 +336,7 @@ function FlowField() {
         ctx.restore()
       }
 
-      ctx.fillStyle = 'rgba(8,7,13,0.06)'
+      ctx.fillStyle = `rgba(${palette.bg},0.06)`
       ctx.fillRect(0, 0, width, height)
 
       for (const p of particles) {
@@ -307,8 +345,8 @@ function FlowField() {
         const ny = p.y + Math.sin(angle) * 1.1
 
         const grad = ctx.createLinearGradient(p.x, p.y, nx, ny)
-        grad.addColorStop(0, 'rgba(140,123,255,0.0)')
-        grad.addColorStop(1, 'rgba(79,227,201,0.35)')
+        grad.addColorStop(0, palette.trailStart)
+        grad.addColorStop(1, palette.trailEnd)
         ctx.strokeStyle = grad
         ctx.lineWidth = 1
         ctx.beginPath()
@@ -335,6 +373,7 @@ function FlowField() {
 
     return () => {
       resizeObserver.disconnect()
+      themeObserver.disconnect()
       cancelAnimationFrame(raf)
     }
   }, [])
@@ -355,6 +394,41 @@ function FlowField() {
   )
 }
 
+function ThemeToggle() {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+
+  useEffect(() => {
+    setTheme(getTheme())
+  }, [])
+
+  const toggle = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.setAttribute('data-theme', next)
+    try {
+      localStorage.setItem('theme', next)
+    } catch {}
+    setTheme(next)
+  }
+
+  const label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={label}
+      title={label}
+      style={{
+        width: 42, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'transparent', border: '1px solid var(--line-strong)',
+        borderRadius: 10, color: 'var(--ink)', fontSize: '1.1rem', cursor: 'pointer',
+      }}
+    >
+      {theme === 'dark' ? '🌖' : '🌒'}
+    </button>
+  )
+}
+
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
@@ -366,7 +440,7 @@ function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  
+  // Lock page scroll while the mobile menu is open
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -378,7 +452,7 @@ function Navbar() {
     <header style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
       padding: '0 24px', transition: 'all 0.3s ease',
-      background: solid ? 'rgba(8,7,13,0.92)' : 'transparent',
+      background: open ? 'var(--nav-bg-solid)' : scrolled ? 'var(--nav-bg)' : 'transparent',
       backdropFilter: solid ? 'blur(14px)' : 'none',
       borderBottom: solid ? '1px solid var(--line)' : '1px solid transparent',
     }}>
@@ -404,23 +478,25 @@ function Navbar() {
           ))}
         </nav>
 
-        <a href="#contact" className="btn-primary header-cta" style={{ fontSize: '0.78rem', padding: '9px 20px' }}>Let&rsquo;s talk</a>
-
-        <button
-          type="button"
-          className="mobile-toggle"
-          aria-label={open ? 'Close Menu' : 'Open Menu'}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          onClick={() => setOpen(o => !o)}
-          style={{
-            width: 42, height: 42, alignItems: 'center', justifyContent: 'center',
-            background: 'transparent', border: '1px solid var(--line-strong)',
-            borderRadius: 10, color: 'var(--ink)', fontSize: '1.2rem', cursor: 'pointer',
-          }}
-        >
-          {open ? '✕' : '☰'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <ThemeToggle />
+          <a href="#contact" className="btn-primary header-cta" style={{ fontSize: '0.78rem', padding: '9px 20px' }}>Let&rsquo;s talk</a>
+          <button
+            type="button"
+            className="mobile-toggle"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            onClick={() => setOpen(o => !o)}
+            style={{
+              width: 42, height: 42, alignItems: 'center', justifyContent: 'center',
+              background: 'transparent', border: '1px solid var(--line-strong)',
+              borderRadius: 10, color: 'var(--ink)', fontSize: '1.2rem', cursor: 'pointer',
+            }}
+          >
+            {open ? '✕' : '☰'}
+          </button>
+        </div>
       </div>
 
       <nav
@@ -486,9 +562,11 @@ function Hero() {
       <div style={{ position: 'absolute', top: '20%', left: '10%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(124,111,255,0.08), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', bottom: '15%', right: '8%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(79,227,201,0.06), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
       <span className="annotation hide-mobile" style={{ top: '18%', left: '6%' }}>&nabla; &times; F</span>
-      <span className="annotation hide-mobile" style={{ top: '70%', left: '9%' }}>&part;f / &part;x</span>
-      <span className="annotation hide-mobile" style={{ top: '24%', right: '7%' }}>&Sigma; n &rarr; &infin;</span>
-      <span className="annotation hide-mobile" style={{ top: '66%', right: '10%' }}>&int;&int; F &middot; dA</span>
+<span className="annotation hide-mobile" style={{ top: '70%', left: '9%' }}>&part;f / &part;x</span>
+<span className="annotation hide-mobile" style={{ top: '24%', right: '7%' }}>&Sigma; n &rarr; &infin;</span>
+<span className="annotation hide-mobile" style={{ top: '66%', right: '10%' }}>&int;&int; F &middot; dA</span>
+<span className="annotation hide-mobile" style={{ top: '45%', right: '5%' }}>𝒪(n log<sub>2</sub> n)</span>
+<span className="annotation hide-mobile" style={{ top: '84%', right: '22%' }}>A ∧ B ∨ ¬C</span>
       <div className="container" style={{ position: 'relative', zIndex: 2, paddingTop: 96, paddingBottom: 64 }}>
         <div className="section-label">Portfolio &mdash; v2026.1</div>
         <h1 className="font-display" style={{ fontSize: 'clamp(2.6rem, 8vw, 5.4rem)', fontWeight: 800, lineHeight: 1.04, marginBottom: 22, maxWidth: 820 }}>
