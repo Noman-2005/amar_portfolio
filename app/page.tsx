@@ -583,6 +583,7 @@ function Hero() {
         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 64 }}>
           <a href="#projects" className="btn-primary">View my work &rarr;</a>
           <a href="#contact" className="btn-outline">Get in touch</a>
+          <a href="/Shibli-Noman-Arnob-CV.pdf" download className="btn-outline">Download CV &darr;</a>
         </div>
         <div style={{ display: 'flex', gap: 48, flexWrap: 'wrap' }}>
           {[
