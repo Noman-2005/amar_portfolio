@@ -1,30 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-
-const NAV_LINKS = [
-  { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Journey', href: '#journey' },
-  { label: 'Voluntary', href: '#voluntary' },
-  { label: 'Events', href: '#events' },
-  { label: 'Awards', href: '#awards' },
-  { label: 'Resources', href: '#resources' },
-  { label: 'Contact', href: '#contact' },
-]
+import { NAV_LINKS } from '@/data/site'
+import { getTheme } from '@/lib/theme'
 
 
-function getTheme(): 'dark' | 'light' {
-  try {
-    const saved = localStorage.getItem('theme')
-    if (saved === 'light' || saved === 'dark') return saved
-  } catch {}
-
-  return document.documentElement.getAttribute('data-theme') === 'light'
-    ? 'light'
-    : 'dark'
-}
 
 function ThemeToggle() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
