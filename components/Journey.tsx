@@ -28,9 +28,23 @@ export default function Journey() {
           <div className="timeline-line" />
 
           {TIMELINE.map((item, i) => {
-            const isDLD = item.title
-              .toLowerCase()
-              .includes('digital logic design')
+            const title = item.title.toLowerCase()
+
+            const isDLD = title.includes('digital logic design')
+            const isStatistics = title.includes('probability and statistics')
+            const isDiscreteMath = title.includes('discrete mathematics')
+
+            const isClickable = isDLD || isStatistics || isDiscreteMath
+
+            const pdfPath = isDLD
+              ? '/DLD-summary.pdf'
+              : isStatistics
+                ? '/STAT-Summary.pdf'
+                : '/DM-summary.pdf'
+
+            const linkText = isDLD
+              ? 'View Course Outline ↗'
+              : 'View Learning Summary ↗'
 
             const card = (
               <div className="card" style={{ padding: '20px 24px' }}>
@@ -68,7 +82,7 @@ export default function Journey() {
                   </p>
                 )}
 
-                {isDLD && (
+                {isClickable && (
                   <p
                     style={{
                       marginTop: 10,
@@ -77,7 +91,7 @@ export default function Journey() {
                       fontFamily: 'var(--font-mono)',
                     }}
                   >
-                    View Course Outline ↗
+                    {linkText}
                   </p>
                 )}
               </div>
@@ -103,12 +117,12 @@ export default function Journey() {
                   {String(i + 1).padStart(2, '0')}
                 </div>
 
-                {isDLD ? (
+                {isClickable ? (
                   <a
-                    href="/DLD-Outline.pdf"
+                    href={pdfPath}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label="View Digital Logic Design course outline PDF"
+                    aria-label={`View ${item.title} PDF`}
                     style={{
                       display: 'block',
                       color: 'inherit',
