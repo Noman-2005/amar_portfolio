@@ -30,21 +30,24 @@ export default function Journey() {
           {TIMELINE.map((item, i) => {
             const title = item.title.toLowerCase()
 
-            const isDLD = title.includes('digital logic design')
-            const isStatistics = title.includes('probability and statistics')
-            const isDiscreteMath = title.includes('discrete mathematics')
+            const pdfFiles: Record<string, string> = {
+              'digital logic design': '/DLD-summary.pdf',
+              'probability and statistics': '/STAT-Summary.pdf',
+              'discrete mathematics': '/DM-summary.pdf',
+              'data structures & algorithms': '/DSA-summary.pdf',
+              'data structures and algorithms': '/DSA-summary.pdf',
+              'fundamental calculus': '/FC-summary.pdf',
+              'calculus and linear algebra': '/CLA-summary.pdf',
+              'coordinate geometry and vector analysis': '/CGVA-summary.pdf',
+            }
 
-            const isClickable = isDLD || isStatistics || isDiscreteMath
+            const matchedCourse = Object.keys(pdfFiles).find((course) =>
+              title.includes(course)
+            )
 
-            const pdfPath = isDLD
-              ? '/DLD-summary.pdf'
-              : isStatistics
-                ? '/STAT-Summary.pdf'
-                : '/DM-summary.pdf'
-
-            const linkText = isDLD
-              ? 'View Course Outline ↗'
-              : 'View Learning Summary ↗'
+            const pdfPath = matchedCourse
+              ? pdfFiles[matchedCourse]
+              : null
 
             const card = (
               <div className="card" style={{ padding: '20px 24px' }}>
@@ -82,7 +85,7 @@ export default function Journey() {
                   </p>
                 )}
 
-                {isClickable && (
+                {pdfPath && (
                   <p
                     style={{
                       marginTop: 10,
@@ -91,7 +94,7 @@ export default function Journey() {
                       fontFamily: 'var(--font-mono)',
                     }}
                   >
-                    {linkText}
+                    View Learning Summary ↗
                   </p>
                 )}
               </div>
@@ -117,12 +120,12 @@ export default function Journey() {
                   {String(i + 1).padStart(2, '0')}
                 </div>
 
-                {isClickable ? (
+                {pdfPath ? (
                   <a
                     href={pdfPath}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`View ${item.title} PDF`}
+                    aria-label={`View ${item.title} learning summary PDF`}
                     style={{
                       display: 'block',
                       color: 'inherit',
