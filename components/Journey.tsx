@@ -1,6 +1,35 @@
+'use client'
+
+import { useState } from 'react'
 import { TIMELINE } from '@/data/timeline'
 
 export default function Journey() {
+  const [showAll, setShowAll] = useState(false)
+
+  const filteredTimeline = TIMELINE.filter((item) => {
+    const title = item.title.trim().toLowerCase()
+
+    return (
+      title !== 'started web development' &&
+      title !== 'c, java and python'
+    )
+  })
+
+  const visibleTimeline = showAll
+    ? filteredTimeline
+    : filteredTimeline.slice(0, 2)
+
+  const pdfFiles: Record<string, string> = {
+    'digital logic design': '/DLD-summary.pdf',
+    'probability and statistics': '/STAT-Summary.pdf',
+    'discrete mathematics': '/DM-summary.pdf',
+    'data structures & algorithms': '/DSA-summary.pdf',
+    'data structures and algorithms': '/DSA-summary.pdf',
+    'fundamental calculus': '/FC-summary.pdf',
+    'calculus and linear algebra': '/CLA-summary.pdf',
+    'coordinate geometry and vector analysis': '/CGVA-summary.pdf',
+  }
+
   return (
     <section
       id="journey"
@@ -18,28 +47,22 @@ export default function Journey() {
           style={{
             fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)',
             fontWeight: 800,
-            marginBottom: 48,
+            marginBottom: 32,
           }}
         >
           Coursework &amp; <span className="gradient-text">timeline</span>
         </h2>
 
-        <div style={{ position: 'relative', paddingLeft: 40 }}>
+        <div
+          style={{
+            position: 'relative',
+            paddingLeft: 40,
+          }}
+        >
           <div className="timeline-line" />
 
-          {TIMELINE.map((item, i) => {
-            const title = item.title.toLowerCase()
-
-            const pdfFiles: Record<string, string> = {
-              'digital logic design': '/DLD-summary.pdf',
-              'probability and statistics': '/STAT-Summary.pdf',
-              'discrete mathematics': '/DM-summary.pdf',
-              'data structures & algorithms': '/DSA-summary.pdf',
-              'data structures and algorithms': '/DSA-summary.pdf',
-              'fundamental calculus': '/FC-summary.pdf',
-              'calculus and linear algebra': '/CLA-summary.pdf',
-              'coordinate geometry and vector analysis': '/CGVA-summary.pdf',
-            }
+          {visibleTimeline.map((item, i) => {
+            const title = item.title.trim().toLowerCase()
 
             const matchedCourse = Object.keys(pdfFiles).find((course) =>
               title.includes(course)
@@ -50,7 +73,13 @@ export default function Journey() {
               : null
 
             const card = (
-              <div className="card" style={{ padding: '20px 24px' }}>
+              <div
+                className="card"
+                style={{
+                  padding: '20px 24px',
+                  transition: 'transform 0.2s ease',
+                }}
+              >
                 <h3
                   style={{
                     fontWeight: 700,
@@ -102,8 +131,11 @@ export default function Journey() {
 
             return (
               <div
-                key={i}
-                style={{ position: 'relative', marginBottom: 28 }}
+                key={item.title}
+                style={{
+                  position: 'relative',
+                  marginBottom: 24,
+                }}
               >
                 <div
                   className="font-mono"
@@ -141,6 +173,40 @@ export default function Journey() {
             )
           })}
         </div>
+
+        {filteredTimeline.length > 2 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: 12,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setShowAll((previous) => !previous)}
+              aria-expanded={showAll}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '11px 24px',
+                borderRadius: 10,
+                border: '1px solid var(--border)',
+                background: 'var(--bg-raised)',
+                color: 'var(--teal)',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition:
+                  'background 0.2s ease, border-color 0.2s ease',
+              }}
+            >
+              {showAll ? 'Show Less ↑' : 'Show More ↓'}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )
