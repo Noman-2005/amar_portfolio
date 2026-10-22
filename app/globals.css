@@ -315,3 +315,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 [data-theme='light'] .skill-badge:hover {
   border-color: rgba(91, 75, 214, 0.4);
 }
+
+/* Ambient sky background */
+.ambient-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.ambient-sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}

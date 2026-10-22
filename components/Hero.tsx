@@ -38,7 +38,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden', background: 'var(--bg)' }}>
+    <section style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden', background: 'var(--bg)' }}>
       <FlowField />
       <div style={{ position: 'absolute', top: '20%', left: '10%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(124,111,255,0.08), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', bottom: '15%', right: '8%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(79,227,201,0.06), transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
