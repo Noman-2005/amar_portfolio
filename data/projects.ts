@@ -26,6 +26,15 @@ export const PROJECTS = [
     emoji: '🧠',
     accent: 'var(--teal)',
     href: 'https://psychological-assessment-theta.vercel.app/',
-    featured: false,
+    featured: true,
+  },
+    {
+    title: 'Course Planner',
+    desc: 'Explore courses, build your ideal schedule, and make the most of your academic experience.',
+    tags: ['Next.js', 'Course Planning', 'Web App'],
+    emoji: '📚',
+    accent: 'var(--teal)',
+    href: 'https://course-planner-liart.vercel.app/',
+    featured: true,
   },
 ]
