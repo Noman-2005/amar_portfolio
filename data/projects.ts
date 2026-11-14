@@ -37,13 +37,4 @@ export const PROJECTS = [
     href: 'https://course-planner-liart.vercel.app/',
     featured: true,
   },
-    {
-    title: 'ISSB Assessor',
-    desc: 'An interactive ISSB preparation platform featuring verbal and non-verbal IQ tests, practice sessions, full-length assessments, and self-evaluation tools.',
-    tags: ['JavaScript', 'React', 'Vercel', 'ISSB Preparation'],
-    emoji: '🎖️',
-    accent: 'var(--amber)',
-    href: 'https://issb-assessor.vercel.app/',
-    featured: true,
-  },
 ]
